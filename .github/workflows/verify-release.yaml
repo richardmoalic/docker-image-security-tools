@@ -1,0 +1,104 @@
+name: Verify Release Security
+
+on:
+  workflow_run:
+    workflows: [ "Production Release" ]
+    types: [ completed ]
+  workflow_dispatch:
+    inputs:
+      image_digest:
+        description: 'Image digest to verify'
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  verify:
+    name: Cryptographic & Vulnerability Verification
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      packages: read
+      id-token: write
+    outputs:
+      verification_status: ${{ steps.set-status.outputs.status }}
+
+    steps:
+      - name: Determine Image Target
+        id: target
+        run: |
+          DIGEST="${{ github.event.inputs.image_digest }}"
+          if [ -z "$DIGEST" ]; then
+            DIGEST="latest" 
+          fi
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
+
+      - name: Log in to Registry
+        if: ${{ !env.ACT }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Cryptographic Verifications ---
+      - name: Install Tools (Cosign & SLSA Verifier)
+        if: ${{ !env.ACT }}
+        uses: sigstore/cosign-installer@v3.5.0
+
+      - name: Install SLSA Verifier
+        if: ${{ !env.ACT }}
+        uses: slsa-framework/slsa-verifier/actions/installer@v2.6.0
+
+      - name: Cosign Signature Verification
+        if: ${{ !env.ACT }}
+        run: |
+          cosign verify \
+            --certificate-identity-regexp "https://github.com/.*" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.target.outputs.digest }}"
+
+      - name: Verify Provenance & SBOM Attestations
+        if: ${{ !env.ACT }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh attestation verify "oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.target.outputs.digest }}" \
+            --owner "${{ github.repository_owner }}"
+
+      - name: SLSA Verifier Validation
+        if: ${{ !env.ACT }}
+        run: |
+          slsa-verifier verify-image "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.target.outputs.digest }}" \
+            --source-uri "github.com/${{ github.repository }}"
+
+      # --- Security & Vulnerability Scanners ---
+      - name: Run Trivy Vulnerability Scan
+        if: ${{ !env.ACT }} # Trivy remote fetching can break in cold offline/act environments
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.target.outputs.digest }}"
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Run Anchore Grype Scan
+        if: ${{ !env.ACT }}
+        uses: anchore/scan-action@v3
+        with:
+          image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.target.outputs.digest }}"
+          fail-build: true
+          severity-cutoff: high
+
+      - name: Run OSV-Scanner
+        uses: google/osv-scanner-action/bootstrap@v1
+        with:
+          scan-args: --lockfile=package-lock.json
+
+      - name: Set verification output status
+        id: set-status
+        run: echo "status=verified" >> $GITHUB_OUTPUT
