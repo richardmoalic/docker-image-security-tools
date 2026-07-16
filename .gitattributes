@@ -1,0 +1,140 @@
+# Generalist gitattributes
+* text=auto
+################################
+
+# Source Code Files: Line Feed for consistency across all platforms.
+*.js     text eol=lf
+*.mjs    text eol=lf
+*.cjs    text eol=lf
+*.json   text eol=lf
+*.css    text eol=lf
+*.html   text eol=lf
+*.md     text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.xml    text eol=lf
+*.ts     text eol=lf
+*.vue    text eol=lf
+*.jsx    text eol=lf
+*.tsx    text eol=lf
+*.twig   text eol=lf
+*.txt    text eol=lf
+################################
+
+# Treat lockfiles as binary to avoid merge conflicts
+package-lock.json binary
+yarn.lock         binary
+################################
+
+# Binary Assets: binary to prevent normalization and corruption.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.svg       binary
+*.pdf       binary
+*.mp4       binary
+*.mp3       binary
+*.webm      binary
+*.ttf       binary
+*.otf       binary
+*.woff      binary
+*.woff2     binary
+*.zip       binary
+*.tar       binary
+*.gz        binary
+*.phar      binary
+*.db        merge=binary
+################################
+
+# Shell scripts LF for UNIX compatibility
+*.sh text eol=lf
+################################
+
+# Batch files CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+################################
+
+# lockfiles as binary
+package-lock.json  binary
+yarn.lock          binary
+pnpm-lock.yaml     binary
+
+# Composer files: Binary to avoid conflicts.
+composer.lock binary
+composer.phar binary
+##################################
+
+# Export-ignore patterns for archive generation
+/.gitattributes             export-ignore
+/.gitignore                 export-ignore
+/.editorconfig              export-ignore
+/.php-cs-fixer.php          export-ignore
+/.php-cs-fixer.dist.php     export-ignore
+/phpunit.xml.dist           export-ignore
+/README.md                  export-ignore
+/CHANGELOG.md               export-ignore
+/LICENSE                    export-ignore
+/docs/                      export-ignore
+/tests/                     export-ignore
+/var/                       export-ignore
+
+
+# PHP-specific settings
+*.phpt text
+*.phtml text
+
+
+# PHP-specific settings
+*.php     text diff=php
+*.phpt    text
+*.phtml   text
+
+
+# Docker and deployment files
+Dockerfile text
+docker-compose.yml text
+.dockerignore export-ignore
+
+# CI/CD configuration files
+.github/ export-ignore
+.gitlab-ci.yml text
+.bitbucket-pipelines.yml text
+
+# IDE and editor files
+.idea/ export-ignore
+.vscode/ export-ignore
+.project export-ignore
+.settings/ export-ignore
+
+# OS generated files
+.DS_Store export-ignore
+Thumbs.db export-ignore
+
+
+# Diff settings for better Git diffs
+*.php diff=php
+*.js diff=javascript
+*.css diff=css
+*.html diff=html
+*.json diff=json
+*.yml diff=yaml
+*.yaml diff=yaml
+*.xml diff=xml
+*.twig diff=html
+
+# Merge strategy for common conflicts
+composer.lock merge=union
+package-lock.json merge=union
+yarn.lock merge=union
+
+
+# Husky
+.husky/* text eol=lf
+
+playwright-report/** linguist-generated
+test-results/** linguist-generated
+cache/** linguist-generated
+*.html linguist-detectable=false
