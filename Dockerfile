@@ -9,12 +9,17 @@
 #FROM google/osv-scanner:v2.4.0@sha256:b764ca99db6d85907fdf6208cb429b6de9b5846c00b283deababeabfc5feb80c AS osv_src
 #FROM openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f@sha256:ae6e75bb80b9b77b660c779480e0864755fde1d7bd42afc4b64f077abc49b09f AS vexctl_src
 
-FROM sigstore/cosign:v2.4.1 AS cosign_src
-FROM aquasecurity/trivy:0.72.0 AS trivy_src
-FROM anchore/syft:v1.46.0 AS syft_src
-FROM anchore/grype:v0.115.0 AS grype_src
-FROM google/osv-scanner:v2.4.0 AS osv_src
-FROM openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f AS vexctl_src
+FROM ghcr.io/sigstore/cosign/cosign:v2.4.1 AS cosign_src
+
+FROM aquasec/trivy:0.72.0 AS trivy_src
+
+FROM ghcr.io/anchore/syft:v1.46.0 AS syft_src
+
+FROM ghcr.io/anchore/grype:v0.115.0 AS grype_src
+
+FROM ghcr.io/google/osv-scanner:v2.4.0 AS osv_src
+
+FROM ghcr.io/openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f AS vexctl_src
 
 FROM alpine:3.19 AS bootstrap
 
