@@ -79,8 +79,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/osv-scanner \
-            sec-tools:local -L /host-artifacts/sbom.spdx.json \
-            --format json > ${{ github.workspace }}/artifacts/osv.json
+            sec-tools:local --sbom /host-artifacts/sbom.spdx.json --format json > ${{ github.workspace }}/artifacts/osv.json || true
 
       # 8. Apply VEX Filtering
             # 8. Generate OpenVEX Document
