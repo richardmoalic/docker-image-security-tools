@@ -1,0 +1,52 @@
+name: Production Pipeline Orchestrator
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ${{ github.repository }}
+
+jobs:
+  # Tier 1: Build the secure OCI image and output its SHA digest
+  build:
+    name: Build Stage
+    uses: ./.github/workflows/build.yaml
+    permissions:
+      contents: write
+      packages: write
+
+  # Tier 2: Run local vulnerability scanners against the build outputs
+  security-scan:
+    name: Security Scanning Stage
+    needs: build
+    uses: ./.github/workflows/security-scan.yaml
+    with:
+      image_digest: ${{ needs.build.outputs.digest }}
+      version: ${{ needs.build.outputs.version }}
+
+  # Tier 3: Cryptographically sign, attest, and publish the verified release
+  release:
+    name: Release & Sign Stage
+    needs: [build, security-scan]
+    uses: ./.github/workflows/release.yaml
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    with:
+      image_digest: ${{ needs.build.outputs.digest }}
+      version: ${{ needs.build.outputs.version }}
+
+  # Tier 4: Gatekeeping verification run post-deployment
+  verify:
+    name: Verification Stage
+    needs: [build, release]
+    uses: ./.github/workflows/verify-release.yaml
+    permissions:
+      packages: read
+      id-token: write
+    with:
+      image_digest: ${{ needs.build.outputs.digest }}

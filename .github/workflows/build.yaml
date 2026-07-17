@@ -1,0 +1,118 @@
+name: Build Image
+
+on:
+  workflow_call:
+    outputs:
+      digest:
+        description: "The compiled OCI image digest"
+        value: ${{ jobs.build.outputs.digest }}
+      version:
+        description: "Calculated semantic version"
+        value: ${{ jobs.build.outputs.version }}
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ${{ github.repository }}
+
+jobs:
+  build:
+    name: Compile & Version
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      version: ${{ steps.steps-version.outputs.version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install svu
+        run: |
+          echo 'deb [trusted=yes] https://apt.fury.io/caarlos0/ /' | sudo tee /etc/apt/sources.list.d/caarlos0.list
+          sudo apt-get update && sudo apt-get install svu -y
+
+      - name: Determine Next Version
+        id: steps-version
+        run: |
+          NEXT_VERSION=$(svu next)
+          echo "version=${NEXT_VERSION}" >> $GITHUB_OUTPUT
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git rev-parse "$NEXT_VERSION" >/dev/null 2>&1; then
+            git tag "$NEXT_VERSION"
+            git push origin "$NEXT_VERSION"
+          fi
+
+      - name: Generate Tool Manifest
+        run: |
+          cat <<EOF > manifest.json
+          {
+            "version": "${{ steps.steps-version.outputs.version }}",
+            "built": "$(date -u +'%Y-%m-%d')",
+            "tools": {
+              "cosign": "3.1.1",
+              "trivy": "0.72.0",
+              "syft": "1.48.0",
+              "grype": "0.116.0",
+              "osv-scanner": "2.4.0",
+              "vexctl": "0.4.4",
+              "witness": "0.12.0",
+              "slsa-verifier": "2.7.1"
+            }
+          }
+          EOF
+
+      - name: Upload Manifest Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tool-manifest
+          path: manifest.json
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ steps.steps-version.outputs.version }}
+            type=sha,prefix=sha-
+
+      - name: Build & Push Runtime Image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runtime
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Export Security Artifacts
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: artifacts
+          outputs: type=local,dest=artifacts
+          cache-from: type=gha
+
+      - name: Upload Base Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-build-metadata
+          path: artifacts/
