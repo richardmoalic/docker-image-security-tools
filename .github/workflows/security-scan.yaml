@@ -86,7 +86,7 @@ jobs:
             # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
-          cp security/vex-policy.yaml ${{ github.workspace }}/artifacts/vex.json
+          cp ./security/vex-policy.yaml ${{ github.workspace }}/artifacts/vex.json
 
           # Replace immutable product reference dynamically
           sed -i \
