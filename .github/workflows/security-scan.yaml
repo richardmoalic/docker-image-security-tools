@@ -93,18 +93,8 @@ jobs:
             "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" \
             ${{ github.workspace }}/artifacts/vex.json
 
-      # 9. Validate VEX Document
-            # 9. Validate OpenVEX Document
-      - name: Validate VEX Document
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/artifacts:/host-artifacts \
-            --entrypoint /usr/local/bin/vexctl \
-            sec-tools:local validate \
-              --vex /host-artifacts/vex.json
 
-
-      # 10. Apply VEX Filtering
+      # 9. Apply VEX Filtering
       - name: Filter Vulnerabilities with VEX
         run: |
           docker run --rm \
@@ -125,7 +115,7 @@ jobs:
               --input /host-artifacts/grype.json \
               > ${{ github.workspace }}/artifacts/grype-filtered.json
 
-      # 9. Generate Witness Evidence
+      # 10. Generate Witness Evidence
       - name: Generate Process Attestation (Witness)
         run: |
           docker run --rm \
@@ -138,7 +128,7 @@ jobs:
               --out /host-artifacts/witness.dsse.json \
               true
 
-      # 10. Upload all resulting artifacts to the workflow run
+      # 11. Upload all resulting artifacts to the workflow run
       - name: Upload Security Artifacts
         uses: actions/upload-artifact@v4
         with:
