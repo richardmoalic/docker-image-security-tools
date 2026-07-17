@@ -73,6 +73,12 @@ RUN syft dir:. -o spdx-json=/artifacts/sbom.spdx.json
 RUN syft dir:. -o cyclonedx-json=/artifacts/sbom.cdx.json
 
 
+# ==============================================================================
+# Stage 4 - Clean Artifacts Export (Add this at the end of your Dockerfile)
+# ==============================================================================
+FROM scratch AS artifacts
+COPY --from=runtime /artifacts /
+
 # Secure non-root user execution boundary
 USER 65532:65532
 
