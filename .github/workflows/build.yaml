@@ -107,7 +107,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          target: artifacts
+          target: runtime
           outputs: type=local,dest=artifacts
           cache-from: type=gha
 
