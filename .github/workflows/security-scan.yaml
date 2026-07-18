@@ -101,12 +101,12 @@ jobs:
       # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
-          cp security/vex-policy.yaml ${{ github.workspace }}/artifacts/vex.json
+          cp security/vex-policy.yaml ${{ github.workspace }}/artifacts/vex.yaml
 
           # Replace immutable product reference dynamically
           sed -i \
             "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" \
-            ${{ github.workspace }}/artifacts/vex.json
+            ${{ github.workspace }}/artifacts/vex.yaml
 
 
       # 9. Apply VEX Filtering
@@ -117,7 +117,7 @@ jobs:
             --entrypoint /usr/local/bin/vexctl \
             sec-tools:local filter \
               /host-artifacts/trivy.sarif \
-              /host-artifacts/vex.json \
+              /host-artifacts/vex.yaml \
               > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
 
       - name: Filter Grype Results with VEX
@@ -127,7 +127,7 @@ jobs:
             --entrypoint /usr/local/bin/vexctl \
             sec-tools:local filter \
               /host-artifacts/grype.sarif \
-              /host-artifacts/vex.json \
+              /host-artifacts/vex.yaml \
               > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
       # 10. Generate Witness Evidence
