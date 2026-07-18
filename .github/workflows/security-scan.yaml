@@ -97,12 +97,39 @@ jobs:
             --entrypoint /usr/local/bin/osv-scanner \
             sec-tools:local --sbom /host-artifacts/sbom.spdx.json --format json > ${{ github.workspace }}/artifacts/osv.json || true
 
+            # 4.1 Extract OCI PURL from generated SBOM
+      - name: Extract Product PURL
+        id: product
+        run: |
+          PURL=$(jq -r '.metadata.component.purl' \
+            "${{ github.workspace }}/artifacts/sbom.cdx.json")
+
+          if [ -z "$PURL" ] || [ "$PURL" = "null" ]; then
+            echo "::error::Unable to locate OCI PURL in CycloneDX SBOM."
+            exit 1
+          fi
+
+          echo "Detected PURL:"
+          echo "$PURL"
+
+          echo "purl=$PURL" >> "$GITHUB_OUTPUT"
 
       # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
-          cp security/policy/vex-policy.json ${{ github.workspace }}/artifacts/vex.json
-          sed -i "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}#g" ${{ github.workspace }}/artifacts/vex.json
+          jq \
+            --arg purl "${{ steps.product.outputs.purl }}" \
+            '
+            .statements |= map(
+              .products = [
+                {
+                  "@id": $purl
+                }
+              ]
+            )
+            ' \
+            security/policy/vex-policy.json \
+            > "${{ github.workspace }}/artifacts/vex.json"
 
 
       # 9. Apply VEX Filtering
