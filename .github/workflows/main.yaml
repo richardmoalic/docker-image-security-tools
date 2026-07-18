@@ -23,6 +23,9 @@ jobs:
     name: Security Scanning Stage
     needs: build
     uses: ./.github/workflows/security-scan.yaml
+    permissions:
+      id-token: write
+      contents: read
     with:
       image_digest: ${{ needs.build.outputs.digest }}
       version: ${{ needs.build.outputs.version }}
