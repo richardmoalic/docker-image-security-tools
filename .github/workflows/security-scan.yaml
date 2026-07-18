@@ -118,7 +118,6 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/trivy.sarif \
               /host-artifacts/vex.json \
-              --skip-sign \
               > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
 
       - name: Filter Grype Results with VEX
@@ -129,7 +128,6 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/grype.sarif \
               /host-artifacts/vex.json \
-              --skip-sign \
               > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
       # 10. Generate Witness Evidence
@@ -144,7 +142,7 @@ jobs:
               --outfile /host-artifacts/witness.dsse.json \
               --signer-fulcio-url https://fulcio.sigstore.dev \
               --signer-fulcio-oidc-client-id sigstore \
-              --signer-fulcio-oidc-issuer https://token.actions.githubusercontent.com \
+              --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
               --timestamp-servers https://freetsa.org/tsr \
               -- true
 
