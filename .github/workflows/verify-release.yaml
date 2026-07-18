@@ -46,10 +46,9 @@ jobs:
 
       - name: Verify SLSA Provenance
         run: |
-          slsa-verifier verify-image \
-          "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
-          --source-uri "github.com/${{ github.repository }}" \
-          --builder-id "https://github.com/${{ github.repository }}/.github/workflows/release.yaml@refs/heads/main"
+          slsa-verifier verify-image "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
+            --source-uri "github.com/${{ github.repository }}" \
+            --builder-id "https://github.com/actions/runner/github-hosted"
 
       - name: Scan Deployed Image with Trivy
         uses: aquasecurity/trivy-action@master
