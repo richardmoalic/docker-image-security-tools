@@ -101,12 +101,8 @@ jobs:
       # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
-          cp security/policy/vex-policy.json ${{ github.workspace }}/artifacts/vex.json
-
-          # Replace immutable product reference dynamically
-          sed -i \
-            "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" \
-            ${{ github.workspace }}/artifacts/vex.json
+          cp security/vex-policy.json ${{ github.workspace }}/artifacts/vex.json
+          sed -i "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" ${{ github.workspace }}/artifacts/vex.json
 
 
       # 9. Apply VEX Filtering
@@ -119,37 +115,7 @@ jobs:
               /host-artifacts/trivy.sarif \
               /host-artifacts/vex.json \
               > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
-
-
-      - name: Generate Local Reports
-        run: |
-          echo "========================================================================"
-          echo " TRIVY FILTERED SARIF SUMMARY"
-          echo "========================================================================"
-          docker run --rm \
-            -v ${{ github.workspace }}/artifacts:/host-artifacts \
-            --entrypoint jq \
-            sec-tools:local -r '
-              if .runs[].results then
-                [.runs[].results[]] | .[] | "[\(.level // "warning")] \(.ruleId): \(.message.text)"
-              else
-                "No vulnerabilities found."
-              fi
-            ' /host-artifacts/trivy-filtered.sarif
-
-          echo "========================================================================"
-          echo " GRYPE FILTERED SARIF SUMMARY"
-          echo "========================================================================"
-          docker run --rm \
-            -v ${{ github.workspace }}/artifacts:/host-artifacts \
-            --entrypoint jq \
-            sec-tools:local -r '
-              if .runs[].results then
-                [.runs[].results[]] | .[] | "[\(.level // "warning")] \(.ruleId): \(.message.text)"
-              else
-                "No vulnerabilities found."
-              fi
-            ' /host-artifacts/grype-filtered.sarif
+              
 
       - name: Filter Grype Results with VEX
         run: |
