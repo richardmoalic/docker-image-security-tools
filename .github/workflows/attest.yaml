@@ -1,0 +1,76 @@
+name: Cryptographic Attestation
+
+on:
+  workflow_call:
+    inputs:
+      image_digest:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ${{ github.repository }}
+
+jobs:
+  attest:
+    name: Sign & Attest Metadata
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Security Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: security-artifacts
+          path: ./artifacts
+
+      - name: Log in to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
+
+      # Sign the immutable digest directly
+      - name: Sign OCI Image
+        run: cosign sign --yes "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Attach SPDX SBOM
+        run: cosign attach sbom --sbom artifacts/sbom.spdx.json "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Attach CycloneDX Attestation
+        run: cosign attest --yes --predicate artifacts/sbom.cdx.json --type cyclonedx "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Attach Grype Vulnerability Attestation
+        run: cosign attest --yes --predicate artifacts/grype-filtered.sarif --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Attach Trivy Vulnerability Attestation
+        run: cosign attest --yes --predicate artifacts/trivy-filtered.sarif --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Attach OSV Attestation
+        run: cosign attest --yes --predicate artifacts/osv.json --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Attach OpenVEX Attestation
+        run: cosign attest --yes --predicate artifacts/vex.json --type openvex "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Attach Witness Attestation
+        run: cosign attest --yes --predicate artifacts/witness.dsse.json --type https://witness.dev/attestation/v0.1 "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+
+      - name: Generate SLSA Provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          subject-digest: ${{ inputs.image_digest }}
+          push-to-registry: true
+
+      - name: Generate GitHub SBOM Attestation
+        uses: actions/attest-sbom@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          subject-digest: ${{ inputs.image_digest }}
+          sbom-path: artifacts/sbom.spdx.json
+          push-to-registry: true

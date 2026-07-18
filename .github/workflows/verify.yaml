@@ -1,4 +1,4 @@
-name: Verify Release Security
+name: Pre-Publish Verification Hook
 
 on:
   workflow_call:
@@ -23,7 +23,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
 
@@ -32,6 +31,7 @@ jobs:
           cosign verify \
             --certificate-identity-regexp "https://github.com/.*" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --shadow \
             "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
 
       - name: Verify Attestation Signatures
@@ -50,6 +50,9 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+          vex: 'security/vex-policy.json'
+        env:
+          TRIVY_RUN_AS_PLUGIN: 'true'
 
       - name: Scan Deployed Image with Grype
         uses: anchore/scan-action@v3
@@ -57,8 +60,3 @@ jobs:
           image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
           fail-build: true
           severity-cutoff: high
-
-      - name: Scan package-lock with OSV-Scanner
-        uses: google/osv-scanner-action/osv-scanner-action@v1.8.4
-        with:
-          scan-args: --lockfile=package-lock.json

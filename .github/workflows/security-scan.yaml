@@ -10,19 +10,14 @@ on:
         required: true
         type: string
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE: ${{ github.repository }}
-
 jobs:
   build-and-scan:
-    name: Build, Scan & Attest
+    name: Scan & Generate Reports
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. Set up caching for vulnerability databases
       - name: Cache Vulnerability Databases
         uses: actions/cache@v4
         with:
@@ -30,24 +25,16 @@ jobs:
             ~/.cache/trivy
             ~/.cache/grype
           key: ${{ runner.os }}-security-db-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-security-db-
+          restore-keys: ${{ runner.os }}-security-db-
 
-      # 2. Build your reproducible, secure tool suite image
       - name: Build Tool-Suite Image
-        run: |
-          docker build \
-            -t sec-tools:local \
-            --target runtime \
-            .
+        run: docker build -t sec-tools:local --target runtime .
 
-      # 3. Prepare workspace host paths to pull artifacts out of the container
       - name: Prepare Workspace Directories
         run: |
           mkdir -p ${{ github.workspace }}/artifacts
           mkdir -p ~/.cache/trivy ~/.cache/grype
 
-      # 4. Extract generated SBOMs and VEX templates from the image
       - name: Extract Build Metadata
         run: |
           docker run --rm \
@@ -55,7 +42,6 @@ jobs:
             --entrypoint cp \
             sec-tools:local -r /artifacts/. /host-artifacts/
 
-      # 5. Run Grype Scan
       - name: Run Grype Vulnerability Scan
         run: |
           docker run --rm \
@@ -72,7 +58,6 @@ jobs:
             --entrypoint /usr/local/bin/grype \
             sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o sarif > ${{ github.workspace }}/artifacts/grype.sarif
 
-      # 6. Run Trivy Scan
       - name: Run Trivy Vulnerability Scan
         run: |
           docker run --rm \
@@ -89,7 +74,6 @@ jobs:
             --entrypoint /usr/local/bin/trivy \
             sec-tools:local sbom /host-artifacts/sbom.cdx.json --format sarif --output /host-artifacts/trivy.sarif
 
-      # 7. Run OSV-Scanner (New Step)
       - name: Run OSV-Scanner
         run: |
           docker run --rm \
@@ -97,53 +81,31 @@ jobs:
             --entrypoint /usr/local/bin/osv-scanner \
             sec-tools:local --sbom /host-artifacts/sbom.spdx.json --format json > ${{ github.workspace }}/artifacts/osv.json || true
 
-
-      # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
           cp security/vex-policy.json ${{ github.workspace }}/artifacts/vex.json
+          sed -i "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" ${{ github.workspace }}/artifacts/vex.json
 
-          # Replace immutable product reference dynamically
-          sed -i \
-            "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" \
-            ${{ github.workspace }}/artifacts/vex.json
-
-
-      # 9. Apply VEX Filtering
       - name: Filter Trivy SARIF with VEX
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/vexctl \
-            sec-tools:local filter \
-              /host-artifacts/trivy.sarif \
-              /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
+            sec-tools:local filter /host-artifacts/trivy.sarif /host-artifacts/vex.json > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
 
       - name: Filter Grype Results with VEX
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/vexctl \
-            sec-tools:local filter \
-              /host-artifacts/grype.sarif \
-              /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/grype-filtered.sarif
+            sec-tools:local filter /host-artifacts/grype.sarif /host-artifacts/vex.json > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
-      # 10. Generate Witness Evidence
       - name: Install Witness
-        env:
-          WITNESS_VERSION: v0.9.1 # Pin to your desired version
         run: |
-          curl -fsSL \
-            -o witness.tar.gz \
-            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+          WITNESS_VERSION="v0.9.1"
+          curl -fsSL -o witness.tar.gz "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+          tar -xzf witness.tar.gz && chmod +x witness && sudo mv witness /usr/local/bin/
 
-          tar -xzf witness.tar.gz
-          chmod +x witness
-          sudo mv witness /usr/local/bin/
-
-      # 11. Generate Process Attestation (Witness)
       - name: Generate Process Attestation (Witness)
         run: |
           witness run \
@@ -155,36 +117,9 @@ jobs:
             --timestamp-servers https://freetsa.org/tsr \
             -- true
 
-      # 11. Upload all resulting artifacts to the workflow run
       - name: Upload Security Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: security-artifacts
           path: ${{ github.workspace }}/artifacts/
           retention-days: 5
-
-  release:
-    name: Publish Production Release
-    needs: build-and-scan
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Security Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: security-artifacts
-          path: ./release-artifacts
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            ./release-artifacts/sbom.spdx.json
-            ./release-artifacts/sbom.cdx.json
-            ./release-artifacts/trivy.json
-            ./release-artifacts/grype.json
-            ./release-artifacts/vex.json
-            ./release-artifacts/trivy-filtered.sarif
-            ./release-artifacts/grype-filtered.sarif
-            ./release-artifacts/osv.json
-            ./release-artifacts/witness.dsse.json
