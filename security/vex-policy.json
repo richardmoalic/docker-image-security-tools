@@ -14,7 +14,9 @@
       "justification": "component_not_present",
       "impact_statement": "The vulnerable package or library is not compiled or packaged into the final runtime minimal distroless image layer.",
       "products": [
-        "pkg:oci/ghcr.io/ricardo/sec-tools@latest"
+        {
+          "id": "pkg:oci/ghcr.io/ricardo/sec-tools@latest"
+        }
       ]
     },
     {
@@ -25,7 +27,9 @@
       "justification": "vulnerable_code_not_in_execute_path",
       "impact_statement": "Although the dependency exists in the build phase, the vulnerable function execution pathway is never called by our static binary wrappers.",
       "products": [
-        "pkg:oci/ghcr.io/ricardo/sec-tools@latest"
+        {
+          "id": "pkg:oci/ghcr.io/ricardo/sec-tools@latest"
+        }
       ]
     },
     {
@@ -35,7 +39,9 @@
       "status": "under_investigation",
       "impact_statement": "Triaging impact on static binaries. Workarounds are implemented via strict nonroot execution boundaries.",
       "products": [
-        "pkg:oci/ghcr.io/ricardo/sec-tools@latest"
+        {
+          "id": "pkg:oci/ghcr.io/ricardo/sec-tools@latest"
+        }
       ]
     }
   ]
