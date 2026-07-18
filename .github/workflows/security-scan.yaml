@@ -64,6 +64,14 @@ jobs:
             --entrypoint /usr/local/bin/grype \
             sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o json > ${{ github.workspace }}/artifacts/grype.json
 
+      - name: Run Grype Sarif Report
+        run: |
+          docker run --rm \
+            -v ~/.cache/grype:/root/.cache/grype \
+            -v ${{ github.workspace }}/artifacts:/host-artifacts \
+            --entrypoint /usr/local/bin/grype \
+            sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o sarif > ${{ github.workspace }}/artifacts/grype.sarif
+
       # 6. Run Trivy Scan
       - name: Run Trivy Vulnerability Scan
         run: |
@@ -72,6 +80,14 @@ jobs:
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/trivy \
             sec-tools:local sbom /host-artifacts/sbom.cdx.json --format json --output /host-artifacts/trivy.json
+      
+      - name: Generate Trivy SARIF Report
+        run: |
+          docker run --rm \
+            -v ~/.cache/trivy:/root/.cache/trivy \
+            -v ${{ github.workspace }}/artifacts:/host-artifacts \
+            --entrypoint /usr/local/bin/trivy \
+            sec-tools:local sbom /host-artifacts/sbom.cdx.json --format sarif --output /host-artifacts/trivy.sarif
 
       # 7. Run OSV-Scanner (New Step)
       - name: Run OSV-Scanner
@@ -94,15 +110,15 @@ jobs:
 
 
       # 9. Apply VEX Filtering
-      - name: Filter Vulnerabilities with VEX
+      - name: Filter Trivy SARIF with VEX
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/vexctl \
             sec-tools:local filter \
               /host-artifacts/vex.json \
-              /host-artifacts/trivy.json \
-              > ${{ github.workspace }}/artifacts/trivy-filtered.json
+              /host-artifacts/trivy.sarif \
+              > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
 
       - name: Filter Grype Results with VEX
         run: |
@@ -111,8 +127,8 @@ jobs:
             --entrypoint /usr/local/bin/vexctl \
             sec-tools:local filter \
               /host-artifacts/vex.json \
-              /host-artifacts/grype.json \
-              > ${{ github.workspace }}/artifacts/grype-filtered.json
+              /host-artifacts/grype.sarif \
+              > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
       # 10. Generate Witness Evidence
       - name: Generate Process Attestation (Witness)
@@ -153,9 +169,10 @@ jobs:
           files: |
             ./release-artifacts/sbom.spdx.json
             ./release-artifacts/sbom.cdx.json
+            ./release-artifacts/trivy.json
             ./release-artifacts/grype.json
             ./release-artifacts/vex.json
-            ./release-artifacts/trivy-filtered.json
-            ./release-artifacts/grype-filtered.json
+            ./release-artifacts/trivy-filtered.sarif
+            ./release-artifacts/grype-filtered.sarif
             ./release-artifacts/osv.json
             ./release-artifacts/witness.dsse.json
