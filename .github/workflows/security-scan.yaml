@@ -136,11 +136,14 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
+            -v ${{ github.workspace }}/security:/keys \
             --entrypoint /usr/local/bin/witness \
             sec-tools:local run \
-            --signer-file-key /keys/cosign.key \
-            --out /host-artifacts/witness.dsse.json \
-            -- true
+              --step build \
+              --private-providers file \
+              --key /keys/cosign.key \
+              -o /host-artifacts/witness.dsse.json \
+              -- true
 
       # 11. Upload all resulting artifacts to the workflow run
       - name: Upload Security Artifacts
