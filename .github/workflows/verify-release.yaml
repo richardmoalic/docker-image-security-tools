@@ -67,6 +67,6 @@ jobs:
           severity-cutoff: high
 
       - name: Scan package-lock with OSV-Scanner
-        uses: google/osv-scanner-action@v1.8.4
+        uses: google/osv-scanner-action/osv-scanner-action@v1.8.4
         with:
           scan-args: --lockfile=package-lock.json
