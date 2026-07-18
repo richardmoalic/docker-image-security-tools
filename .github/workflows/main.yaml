@@ -22,6 +22,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/security-scan.yaml
     permissions:
+      id-token: write
       contents: read
     with:
       image_digest: ${{ needs.build.outputs.digest }}
