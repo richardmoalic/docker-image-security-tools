@@ -40,18 +40,21 @@ jobs:
           gh attestation verify "oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
             --owner "${{ github.repository_owner }}"
 
-      - name: Scan Deployed Image with Trivy
-        uses: aquasecurity/trivy-action@master
+      - name: Setup Trivy CLI
+        uses: aquasecurity/setup-trivy@v0.2.2
         with:
-          image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          vex: 'security/vex-policy.json'
-        env:
-          TRIVY_RUN_AS_PLUGIN: 'true'
+          version: v0.72.0
+
+      # 3. Execute directly with your target VEX policy controls
+      - name: Scan Deployed Image with Trivy
+        run: |
+          trivy image \
+            --exit-code 1 \
+            --ignore-unfixed \
+            --vuln-type os,library \
+            --severity CRITICAL,HIGH \
+            --vex security/vex-policy.json \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
 
       - name: Scan Deployed Image with Grype
         uses: anchore/scan-action@v3
