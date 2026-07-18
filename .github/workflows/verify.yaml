@@ -29,8 +29,7 @@ jobs:
       - name: Verify Cosign Signature
         run: |
           cosign verify \
-            --certificate-identity \
-            "https://github.com/${{ github.repository }}/.github/workflows/verify.yaml@refs/heads/main" \
+            --certificate-identity-regexp "https://github.com/.*" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
             "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
 
