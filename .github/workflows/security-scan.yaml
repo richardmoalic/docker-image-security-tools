@@ -120,6 +120,14 @@ jobs:
               /host-artifacts/vex.json \
               > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
 
+
+      - name: Generate Local Reports
+        run: |
+          cp /artifacts/trivy.json security/reports/trivy.json
+          cp /artifacts/trivy.json security/reports/grype.json
+          cp /artifacts/trivy.json security/reports/trivy-filtered.sarif
+          cp /artifacts/trivy.json security/reports/grype-filtered.sarif
+
       - name: Filter Grype Results with VEX
         run: |
           docker run --rm \
