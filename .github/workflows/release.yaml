@@ -151,7 +151,7 @@ jobs:
         run: |
           cosign attest --yes \
             --predicate artifacts/osv.json \
-            --type osv \
+            --type vuln \
             "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach OpenVEX Attestation
