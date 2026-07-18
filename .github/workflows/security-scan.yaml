@@ -131,20 +131,29 @@ jobs:
               > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
       # 10. Generate Witness Evidence
+      - name: Install Witness
+        env:
+          WITNESS_VERSION: v0.9.1 # Pin to your desired version
+        run: |
+          curl -fsSL \
+            -o witness.tar.gz \
+            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+
+          tar -xzf witness.tar.gz
+          chmod +x witness
+          sudo mv witness /usr/local/bin/
+
+      # 11. Generate Process Attestation (Witness)
       - name: Generate Process Attestation (Witness)
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -v ${{ github.workspace }}/artifacts:/host-artifacts \
-            --entrypoint /usr/local/bin/witness \
-            sec-tools:local run \
-              --step build \
-              --outfile /host-artifacts/witness.dsse.json \
-              --signer-fulcio-url https://fulcio.sigstore.dev \
-              --signer-fulcio-oidc-client-id sigstore \
-              --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
-              --timestamp-servers https://freetsa.org/tsr \
-              -- true
+          witness run \
+            --step build \
+            --outfile "${{ github.workspace }}/artifacts/witness.dsse.json" \
+            --signer-fulcio-url https://fulcio.sigstore.dev \
+            --signer-fulcio-oidc-client-id sigstore \
+            --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
+            --timestamp-servers https://freetsa.org/tsr \
+            -- true
 
       # 11. Upload all resulting artifacts to the workflow run
       - name: Upload Security Artifacts
