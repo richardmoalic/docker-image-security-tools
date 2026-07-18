@@ -45,31 +45,6 @@ jobs:
             git push origin "$NEXT_VERSION"
           fi
 
-      - name: Generate Tool Manifest
-        run: |
-          cat <<EOF > manifest.json
-          {
-            "version": "${{ steps.steps-version.outputs.version }}",
-            "built": "$(date -u +'%Y-%m-%d')",
-            "tools": {
-              "cosign": "2.4.1",
-              "trivy": "0.72.0",
-              "syft": "1.46.0",
-              "grype": "0.115.0",
-              "osv-scanner": "2.4.0",
-              "vexctl": "c613023a69ce990a54c25c2f5e69d5d78285927f",
-              "witness": "0.12.0",
-              "slsa-verifier": "2.7.1"
-            }
-          }
-          EOF
-
-      - name: Upload Manifest Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tool-manifest
-          path: manifest.json
-
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
