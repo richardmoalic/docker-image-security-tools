@@ -138,7 +138,7 @@ jobs:
           cosign attest --yes \
             --predicate artifacts/grype-filtered.json \
             --type vuln \
-            "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.inputs.image_digest }}"
+            "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach Trivy Vulnerability Attestation
         run: |

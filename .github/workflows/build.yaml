@@ -18,6 +18,9 @@ jobs:
   build:
     name: Compile & Version
     runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      version: ${{ steps.steps-version.outputs.version }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
