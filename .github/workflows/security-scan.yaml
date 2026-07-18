@@ -138,9 +138,9 @@ jobs:
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/witness \
             sec-tools:local run \
-              --step build \
-              -o /host-artifacts/witness.dsse.json \
-              -- true
+            --signer-file-key /keys/cosign.key \
+            --out /host-artifacts/witness.dsse.json \
+            -- true
 
       # 11. Upload all resulting artifacts to the workflow run
       - name: Upload Security Artifacts
