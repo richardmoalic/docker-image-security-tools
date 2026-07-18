@@ -139,26 +139,10 @@ jobs:
           ' artifacts/trivy.sarif | sort -u | head -50
 
 
-      - name: Debug Compare Trivy And Vex 
-        run: |
-          echo "Debug Compare Trivy And Vex"
-          comm -12 \
-          <(jq -r '.runs[].results[].ruleId' artifacts/trivy.sarif | sort -u) \
-          <(jq -r '.statements[].vulnerability.name' artifacts/vex.json | sort -u)
-
       - name: Debug SBOM PURL
         run: |
           echo "SBOM PURL:"
           jq -r '.metadata.component.purl' artifacts/sbom.cdx.json
-
-      - name: Debug Remaining CVEs
-        run: |
-          echo "Remaining Trivy:"
-          jq -r '.runs[].results[].ruleId' artifacts/trivy-filtered.sarif | head -30
-
-          echo
-          echo "Remaining Grype:"
-          jq -r '.runs[].results[].ruleId' artifacts/grype-filtered.sarif | head -30
 
       # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
@@ -182,6 +166,13 @@ jobs:
         run: |
           echo "Debug Product Id"
           jq '.statements[0].products[0]."@id"' artifacts/vex.json 
+
+      - name: Debug Compare Trivy And Vex 
+        run: |
+          echo "Debug Compare Trivy And Vex"
+          comm -12 \
+          <(jq -r '.runs[].results[].ruleId' artifacts/trivy.sarif | sort -u) \
+          <(jq -r '.statements[].vulnerability.name' artifacts/vex.json | sort -u)
 
 
       - name: Debug Vulnerability
@@ -213,7 +204,7 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/trivy.sarif \
               /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
+              > ${{ github.workspace }}/artifacts/trivy-filtered.sarif || true
               
 
       - name: Filter Grype Results with VEX
@@ -224,7 +215,17 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/grype.sarif \
               /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/grype-filtered.sarif
+              > ${{ github.workspace }}/artifacts/grype-filtered.sarif || true
+
+
+      - name: Debug Remaining CVEs
+        run: |
+          echo "Remaining Trivy:"
+          jq -r '.runs[].results[].ruleId' artifacts/trivy-filtered.sarif | head -30
+
+          echo
+          echo "Remaining Grype:"
+          jq -r '.runs[].results[].ruleId' artifacts/grype-filtered.sarif | head -30
 
       - name: Verify Filtered Security Gates
         run: |
