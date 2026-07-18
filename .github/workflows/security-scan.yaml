@@ -125,6 +125,55 @@ jobs:
           echo "Detected/Constructed PURL: $PURL"
           echo "purl=$PURL" >> "$GITHUB_OUTPUT"
 
+      - name: Debug Product Id
+        run: |
+          jq '.statements[0].products[0]."@id"' artifacts/vex.json 
+
+      - name: Debug Product Purl
+        run: |
+          jq '.metadata.component.purl' artifacts/sbom.cdx.json
+
+      - name: Debug Sarif Id
+        run: |
+          jq -r '
+          .runs[].results[]
+          | .ruleId
+          ' artifacts/trivy.sarif | sort -u | head -50
+
+      - name: Debug Vulnerability
+        run: |
+          jq -r '
+          .statements[].vulnerability.name
+          ' artifacts/vex.json | sort -u | head -50
+
+      - name: Debug Compare Trivy And Vex 
+        run: |
+          comm -12 \
+          <(jq -r '.runs[].results[].ruleId' artifacts/trivy.sarif | sort -u) \
+          <(jq -r '.statements[].vulnerability.name' artifacts/vex.json | sort -u)
+
+      - name: Debug VEX
+        run: |
+          echo "SBOM PURL:"
+          jq -r '.metadata.component.purl' artifacts/sbom.cdx.json
+
+          echo
+          echo "VEX Product:"
+          jq -r '.statements[0].products[0]."@id"' artifacts/vex.json
+
+          echo
+          echo "First 10 CVEs in VEX:"
+          jq -r '.statements[].vulnerability.name' artifacts/vex.json | head
+
+      - name: Debug Remaining CVEs
+        run: |
+          echo "Remaining Trivy:"
+          jq -r '.runs[].results[].ruleId' artifacts/trivy-filtered.sarif | head -30
+      
+          echo
+          echo "Remaining Grype:"
+          jq -r '.runs[].results[].ruleId' artifacts/grype-filtered.sarif | head -30
+
       # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
