@@ -136,13 +136,14 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
-            -v ${{ github.workspace }}/security:/keys \
             --entrypoint /usr/local/bin/witness \
             sec-tools:local run \
               --step build \
-              --private-providers file \
-              --key /keys/cosign.key \
-              -o /host-artifacts/witness.dsse.json \
+              --outfile /host-artifacts/witness.dsse.json \
+              --signer-fulcio-url https://fulcio.sigstore.dev \
+              --signer-fulcio-oidc-client-id sigstore \
+              --signer-fulcio-oidc-issuer https://token.actions.githubusercontent.com \
+              --timestamp-servers https://freetsa.org/tsr \
               -- true
 
       # 11. Upload all resulting artifacts to the workflow run
