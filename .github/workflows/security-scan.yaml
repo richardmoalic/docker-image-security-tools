@@ -130,6 +130,23 @@ jobs:
               /host-artifacts/vex.json \
               > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
+      - name: Verify Filtered Security Gates
+        run: |
+          echo "Evaluating remaining vulnerabilities after VEX statements applied..."
+          
+          # Count findings in the filtered SARIF structures
+          TRIVY_REMAINING=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/artifacts/trivy-filtered.sarif)
+          GRYPE_REMAINING=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/artifacts/grype-filtered.sarif)
+          
+          echo "Unresolved Trivy Vulnerabilities: $TRIVY_REMAINING"
+          echo "Unresolved Grype Vulnerabilities: $GRYPE_REMAINING"
+          
+          if [ "$TRIVY_REMAINING" -gt 0 ] || [ "$GRYPE_REMAINING" -gt 0 ]; then
+            echo "::error::Pre-publish gate failed! Unresolved vulnerabilities exist after VEX filtering."
+            exit 1
+          fi
+          echo "Security gate clean. Proceeding to attestation and artifact generation."
+
       # 10. Generate Witness Evidence
       - name: Install Witness
         env:

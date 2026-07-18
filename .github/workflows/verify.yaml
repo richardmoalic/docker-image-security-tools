@@ -40,27 +40,4 @@ jobs:
           gh attestation verify "oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
             --owner "${{ github.repository_owner }}"
 
-      - name: Download Security Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: security-artifacts
-          path: ./security-reports
-
-      # 2. Gatekeeper: Parse the filtered SARIF data to guarantee zero unresolved alerts remain
-      - name: Enforce VEX-Filtered Vulnerability Gate
-        run: |
-          echo "Checking filtered Trivy reports..."
-          TRIVY_ERRORS=$(jq '.runs[].results | length' ./security-reports/trivy-filtered.sarif)
-          
-          echo "Checking filtered Grype reports..."
-          GRYPE_ERRORS=$(jq '.runs[].results | length' ./security-reports/grype-filtered.sarif)
-          
-          echo "Trivy unresolved alerts post-VEX: $TRIVY_ERRORS"
-          echo "Grype unresolved alerts post-VEX: $GRYPE_ERRORS"
-          
-          if [ "$TRIVY_ERRORS" -gt 0 ] || [ "$GRYPE_ERRORS" -gt 0 ]; then
-            echo "::error::Pre-publish gate failed! Unresolved vulnerabilities exist after VEX filtering."
-            exit 1
-          fi
-          
-          echo "All security gates passed successfully."
+    
