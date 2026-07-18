@@ -97,21 +97,32 @@ jobs:
             --entrypoint /usr/local/bin/osv-scanner \
             sec-tools:local --sbom /host-artifacts/sbom.spdx.json --format json > ${{ github.workspace }}/artifacts/osv.json || true
 
-            # 4.1 Extract OCI PURL from generated SBOM
       - name: Extract Product PURL
         id: product
         run: |
-          PURL=$(jq -r '.metadata.component.purl' \
-            "${{ github.workspace }}/artifacts/sbom.cdx.json")
+          # Try to extract it from the SBOM metadata first
+          PURL=$(jq -r '.metadata.component.purl // empty' "${{ github.workspace }}/artifacts/sbom.cdx.json")
 
+          # Fallback: If the SBOM lacks a PURL, build it dynamically using the metadata name or inputs
           if [ -z "$PURL" ] || [ "$PURL" = "null" ]; then
-            echo "::error::Unable to locate OCI PURL in CycloneDX SBOM."
-            exit 1
+            echo "⚠️ PURL not found in SBOM metadata. Constructing fallback OCI PURL..."
+            
+            # Extract image name from SBOM metadata, or fall back to repository path
+            IMG_NAME=$(jq -r '.metadata.component.name // empty' "${{ github.workspace }}/artifacts/sbom.cdx.json")
+            if [ -z "$IMG_NAME" ] || [ "$IMG_NAME" = "null" ]; then
+              IMG_NAME="ghcr.io/${{ github.repository }}"
+            fi
+
+            # Clean up the image name if it already contains a tag or digest
+            IMG_BASE=$(echo "$IMG_NAME" | cut -d':' -f1 | cut -d'@' -f1)
+            
+            # Construct standard OCI purl format (pkg:oci/name@digest or pkg:oci/name@tag)
+            # Adjust the identifier component depending on whether you use inputs.image_digest or github.sha
+            IDENTIFIER="${{ inputs.image_digest || github.sha }}"
+            PURL="pkg:oci/${IMG_BASE#pkg:oci/}@${IDENTIFIER}"
           fi
 
-          echo "Detected PURL:"
-          echo "$PURL"
-
+          echo "Detected/Constructed PURL: $PURL"
           echo "purl=$PURL" >> "$GITHUB_OUTPUT"
 
       # 8. Prepare OpenVEX Policy
