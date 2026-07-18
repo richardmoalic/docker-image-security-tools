@@ -84,16 +84,3 @@ USER 65532:65532
 
 ENTRYPOINT ["/usr/local/bin/trivy"]
 
-Run cosign sign --yes \
-  cosign sign --yes \
-    "ghcr.io/ricardo/docker-image-security-tools@"
-  shell: /usr/bin/bash -e {0}
-  env:
-    REGISTRY: ghcr.io
-    IMAGE: ricardo/docker-image-security-tools
-Generating ephemeral keys...
-Retrieving signed certificate...
-Successfully verified SCT...
-Error: signing [ghcr.io/ricardo/docker-image-security-tools@]: parsing reference: could not parse reference: ghcr.io/ricardo/docker-image-security-tools@
-main.go:74: error during command execution: signing [ghcr.io/ricardo/docker-image-security-tools@]: parsing reference: could not parse reference: ghcr.io/ricardo/docker-image-security-tools@
-Error: Process completed with exit code 1.
