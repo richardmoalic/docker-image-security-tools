@@ -191,8 +191,10 @@ jobs:
           files: |
             ./artifacts/sbom.spdx.json
             ./artifacts/sbom.cdx.json
-            ./artifacts/grype-filtered.json
-            ./artifacts/trivy-filtered.json
+            ./artifacts/grype-filtered.sarif
+            ./artifacts/grype.json
+            ./artifacts/trivy.json
+            ./artifacts/trivy-filtered.sarif
             ./artifacts/osv.json
             ./artifacts/vex.json
             ./artifacts/witness.dsse.json
