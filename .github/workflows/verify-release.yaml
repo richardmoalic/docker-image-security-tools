@@ -32,10 +32,10 @@ jobs:
 
       - name: Verify Cosign Signature
         run: |
-          slsa-verifier verify-image \
-          "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
-          --source-uri "github.com/${{ github.repository }}" \
-          --builder-id "https://github.com/${{ github.repository }}/.github/workflows/release.yaml@refs/heads/main"
+          cosign verify \
+            --certificate-identity-regexp "https://github.com/.*" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
 
       - name: Verify Attestation Signatures
         env:
@@ -46,9 +46,10 @@ jobs:
 
       - name: Verify SLSA Provenance
         run: |
-          slsa-verifier verify-image "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
-            --source-uri "github.com/${{ github.repository }}" \
-            --builder-id "https://github.com/actions/runner/github-hosted"
+          slsa-verifier verify-image \
+          "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
+          --source-uri "github.com/${{ github.repository }}" \
+          --builder-id "https://github.com/${{ github.repository }}/.github/workflows/release.yaml@refs/heads/main"
 
       - name: Scan Deployed Image with Trivy
         uses: aquasecurity/trivy-action@master
