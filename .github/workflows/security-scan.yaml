@@ -123,10 +123,33 @@ jobs:
 
       - name: Generate Local Reports
         run: |
-          cp /artifacts/trivy.json security/reports/trivy.json
-          cp /artifacts/trivy.json security/reports/grype.json
-          cp /artifacts/trivy.json security/reports/trivy-filtered.sarif
-          cp /artifacts/trivy.json security/reports/grype-filtered.sarif
+          echo "========================================================================"
+          echo " TRIVY FILTERED SARIF SUMMARY"
+          echo "========================================================================"
+          docker run --rm \
+            -v ${{ github.workspace }}/artifacts:/host-artifacts \
+            --entrypoint jq \
+            sec-tools:local -r '
+              if .runs[].results then
+                [.runs[].results[]] | .[] | "[\(.level // "warning")] \(.ruleId): \(.message.text)"
+              else
+                "No vulnerabilities found."
+              fi
+            ' /host-artifacts/trivy-filtered.sarif
+
+          echo "========================================================================"
+          echo " GRYPE FILTERED SARIF SUMMARY"
+          echo "========================================================================"
+          docker run --rm \
+            -v ${{ github.workspace }}/artifacts:/host-artifacts \
+            --entrypoint jq \
+            sec-tools:local -r '
+              if .runs[].results then
+                [.runs[].results[]] | .[] | "[\(.level // "warning")] \(.ruleId): \(.message.text)"
+              else
+                "No vulnerabilities found."
+              fi
+            ' /host-artifacts/grype-filtered.sarif
 
       - name: Filter Grype Results with VEX
         run: |
