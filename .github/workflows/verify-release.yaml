@@ -32,10 +32,10 @@ jobs:
 
       - name: Verify Cosign Signature
         run: |
-          cosign verify \
-            --certificate-identity-regexp "https://github.com/.*" \
-            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
+          slsa-verifier verify-image \
+          "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
+          --source-uri "github.com/${{ github.repository }}" \
+          --builder-id "https://github.com/${{ github.repository }}/.github/workflows/release.yaml@refs/heads/main"
 
       - name: Verify Attestation Signatures
         env:

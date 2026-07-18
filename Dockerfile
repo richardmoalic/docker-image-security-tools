@@ -84,3 +84,6 @@ USER 65532:65532
 
 ENTRYPOINT ["/usr/local/bin/trivy"]
 
+gh attestation download \
+  oci://ghcr.io/ricardo/docker-image-security-tools@sha256:0514eb223f69cb53ddef03e3034e965ea6ad9836b97fdfbc74a9cb841de63905 \
+  > provenance.jsonl
