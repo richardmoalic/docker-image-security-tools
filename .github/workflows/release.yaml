@@ -136,14 +136,14 @@ jobs:
       - name: Attach Grype Vulnerability Attestation
         run: |
           cosign attest --yes \
-            --predicate artifacts/grype-filtered.json \
+            --predicate artifacts/grype-filtered.sarif \
             --type vuln \
             "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach Trivy Vulnerability Attestation
         run: |
           cosign attest --yes \
-            --predicate artifacts/trivy-filtered.json \
+            --predicate artifacts/trivy-filtered.sarif \
             --type vuln \
             "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
