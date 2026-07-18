@@ -49,7 +49,7 @@ jobs:
           slsa-verifier verify-image \
             "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
             --source-uri "github.com/${{ github.repository }}" \
-            --builder-id "https://github.com/${{ github.repository }}/.github/workflows/release.yaml@${{ github.sha }}"
+            --builder-id "https://github.com/${{ github.repository }}/.github/workflows/release.yaml@${{ github.ref_name }}"
 
       - name: Scan Deployed Image with Trivy
         uses: aquasecurity/trivy-action@master
