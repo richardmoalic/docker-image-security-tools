@@ -101,7 +101,7 @@ jobs:
       # 8. Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
-          cp security/vex-policy.json ${{ github.workspace }}/artifacts/vex.json
+          cp security/policy/vex-policy.json ${{ github.workspace }}/artifacts/vex.json
           sed -i "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" ${{ github.workspace }}/artifacts/vex.json
 
 
