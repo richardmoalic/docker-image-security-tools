@@ -118,6 +118,7 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/trivy.sarif \
               /host-artifacts/vex.json \
+              --skip-sign \
               > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
 
       - name: Filter Grype Results with VEX
@@ -128,6 +129,7 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/grype.sarif \
               /host-artifacts/vex.json \
+              --skip-sign \
               > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
       # 10. Generate Witness Evidence
