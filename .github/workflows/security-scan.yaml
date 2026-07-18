@@ -102,7 +102,7 @@ jobs:
       - name: Prepare VEX Policy
         run: |
           cp security/policy/vex-policy.json ${{ github.workspace }}/artifacts/vex.json
-          sed -i "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ github.sha }}#g" ${{ github.workspace }}/artifacts/vex.json
+          sed -i "s#pkg:oci/ghcr.io/ricardo/sec-tools@latest#pkg:oci/ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}#g" ${{ github.workspace }}/artifacts/vex.json
 
 
       # 9. Apply VEX Filtering
