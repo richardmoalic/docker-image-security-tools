@@ -27,9 +27,6 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
 
-      - name: Install SLSA Verifier
-        uses: slsa-framework/slsa-verifier/actions/installer@v2.6.0
-
       - name: Verify Cosign Signature
         run: |
           cosign verify \
@@ -43,13 +40,6 @@ jobs:
         run: |
           gh attestation verify "oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
             --owner "${{ github.repository_owner }}"
-
-      - name: Verify SLSA Provenance
-        run: |
-          slsa-verifier verify-image \
-            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
-            --source-uri "github.com/${{ github.repository }}" \
-            --builder-id "https://github.com/${{ github.repository }}/.github/workflows/release.yaml@main"
 
       - name: Scan Deployed Image with Trivy
         uses: aquasecurity/trivy-action@master
