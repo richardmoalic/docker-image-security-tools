@@ -139,9 +139,8 @@ jobs:
             --entrypoint /usr/local/bin/witness \
             sec-tools:local run \
               --step build \
-              --materials /workspace \
-              --out /host-artifacts/witness.dsse.json \
-              true
+              -o /host-artifacts/witness.dsse.json \
+              -- true
 
       # 11. Upload all resulting artifacts to the workflow run
       - name: Upload Security Artifacts
