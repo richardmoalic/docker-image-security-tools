@@ -17,7 +17,7 @@ FROM ghcr.io/openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f AS vexctl_s
 FROM alpine:3.19 AS bootstrap
 COPY --from=cosign_src /ko-app/cosign /usr/local/bin/cosign
 
-RUN apk add --no-cache curl tar
+RUN apk add --no-cache curl tar ca-certificates
 
 ARG SLSA_VERIFIER_VERSION=2.7.1
 ARG SLSA_VERIFIER_SHA256_AMD64=946dbec729094195e88ef78e1734324a27869f03e2c6bd2f61cbc06bd5350339
