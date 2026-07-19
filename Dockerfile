@@ -45,9 +45,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then ARCH="amd64"; else ARCH="arm64"; fi && 
       --certificate-identity-regexp "^https://github.com/in-toto/witness/" \
       --certificate-oidc-issuer "https://token.actions.githubusercontent.com" && \
     \
-    tar -xzf "${FILE}" bin/witness && \
-    chmod +x bin/witness && \
-    mv bin/witness /usr/local/bin/witness && \
+    tar -xzf "${FILE}" witness && \
+    chmod +x witness && \
+    mv witness /usr/local/bin/witness && \
     rm -rf "${FILE}" witness_${WITNESS_VERSION}_checksums.txt "${BUNDLE}" verification.txt /usr/local/bin/cosign bin
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
