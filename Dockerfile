@@ -29,7 +29,7 @@ WORKDIR /downloads
 
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then ARCH="amd64"; else ARCH="arm64"; fi && \
-    FILE="witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz"
+    FILE="witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz" && \
     curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/${FILE}" && \
     curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_checksums.txt" && \
     curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz.sigstore.json" && \
