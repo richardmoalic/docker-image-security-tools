@@ -2,7 +2,7 @@
 # Stage 1: Downloader & Cryptographic Verifier
 # ==============================================================================
 
-FROM ghcr.io/sigstore/cosign/cosign:v2.4.1 AS cosign_src
+FROM ghcr.io/sigstore/cosign/cosign:v3.0.5 AS cosign_src
 
 FROM aquasec/trivy:0.72.0 AS trivy_src
 

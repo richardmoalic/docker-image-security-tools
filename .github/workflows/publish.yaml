@@ -55,7 +55,7 @@ jobs:
             "version": "${{ inputs.version }}",
             "built": "$(date -u +'%Y-%m-%d')",
             "tools": {
-              "cosign": "2.4.1",
+              "cosign": "3.0.5",
               "trivy": "0.72.0",
               "syft": "1.46.0",
               "grype": "0.115.0",
