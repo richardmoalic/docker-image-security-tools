@@ -242,7 +242,7 @@ jobs:
           echo "Remaining Grype:"
           jq -r '.runs[].results[].ruleId' artifacts/grype-filtered.sarif | head -30
 
-      - name: Debug Bedore After Trivy
+      - name: Debug Before After Trivy
         run: |
           echo "Trivy Before vex filtering:"
           jq '[.runs[].results[]] | length' artifacts/trivy.sarif
@@ -251,12 +251,12 @@ jobs:
           jq '[.runs[].results[]] | length' artifacts/trivy-filtered.sarif
 
 
-      - name: DEbug Bedore After Grype
+      - name: Debug Before After Grype
         run: |
           echo "Grype Before vex filtering:"
           jq '[.runs[].results[]] | length' artifacts/grype.sarif
 
-          cho "Grype After vex filtering:"
+          echo "Grype After vex filtering:"
           q '[.runs[].results[]] | length' artifacts/grype-filtered.sarif
 
 
