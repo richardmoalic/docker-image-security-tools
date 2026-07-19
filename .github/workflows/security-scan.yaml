@@ -55,6 +55,12 @@ jobs:
             --entrypoint cp \
             sec-tools:local -r /artifacts/. /host-artifacts/
 
+
+      - name: Inspect SBOM
+        run: |
+          echo "Inspect SNOM"
+          jq '.metadata.component' artifacts/sbom.cdx.json
+
       # 5. Run Grype Scan
       - name: Run Grype Vulnerability Scan
         run: |
@@ -138,6 +144,14 @@ jobs:
           | .ruleId
           ' artifacts/trivy.sarif | sort -u | head -50
 
+      - name: Inspect Sarif 
+        run: |
+          echo "Inspect sarif"
+          jq '
+          .runs[0].results[]
+          | select(.ruleId=="CVE-2026-42499")
+          ' artifacts/trivy.sarif
+
 
       - name: Debug SBOM PURL
         run: |
@@ -151,11 +165,12 @@ jobs:
             --arg purl "${{ steps.product.outputs.purl }}" \
             '
             .statements |= map(
-              .products = [
-                {
-                  "@id": $purl
-                }
-              ]
+              # Option A: Map to the corrected PURL
+              .products = [{ "@id": $purl }]
+              
+              # Option B: UNCOMMENT BELOW if filtering still fails. 
+              # It strips product constraints to match globally by CVE ID.
+              # del(.products) 
             )
             ' \
             security/policy/vex-policy.json \
@@ -226,6 +241,24 @@ jobs:
           echo
           echo "Remaining Grype:"
           jq -r '.runs[].results[].ruleId' artifacts/grype-filtered.sarif | head -30
+
+      - name: Debug Bedore After Trivy
+        run: |
+          echo "Trivy Before vex filtering:"
+          jq '[.runs[].results[]] | length' artifacts/trivy.sarif
+
+          echo "Trivy After vex filtering:"
+          jq '[.runs[].results[]] | length' artifacts/trivy-filtered.sarif
+
+
+      - name: DEbug Bedore After Grype
+        run: |
+          echo "Grype Before vex filtering:"
+          jq '[.runs[].results[]] | length' artifacts/grype.sarif
+
+          cho "Grype After vex filtering:"
+          q '[.runs[].results[]] | length' artifacts/grype-filtered.sarif
+
 
       - name: Verify Filtered Security Gates
         run: |
