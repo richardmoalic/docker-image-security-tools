@@ -64,7 +64,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 # ==============================================================================
 # Stage 3 - Runtime
 # ==============================================================================
-FROM alpine:3.19 AS runtime
+FROM alpine:3.23.5 AS runtime
 RUN mkdir -p /artifacts /workspace
 
 
@@ -97,3 +97,5 @@ COPY --from=runtime /artifacts /
 USER 65532:65532
 
 ENTRYPOINT ["/usr/local/bin/trivy"]
+
+
