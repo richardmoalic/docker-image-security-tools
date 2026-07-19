@@ -22,7 +22,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. Set up caching for vulnerability databases
+      # Set up caching for vulnerability databases
       - name: Cache Vulnerability Databases
         uses: actions/cache@v4
         with:
@@ -33,7 +33,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-security-db-
 
-      # 2. Build your reproducible, secure tool suite image
       - name: Build Tool-Suite Image
         run: |
           docker build \
@@ -41,13 +40,12 @@ jobs:
             --target runtime \
             .
 
-      # 3. Prepare workspace host paths to pull artifacts out of the container
       - name: Prepare Workspace Directories
         run: |
           mkdir -p ${{ github.workspace }}/artifacts
           mkdir -p ~/.cache/trivy ~/.cache/grype
 
-      # 4. Extract generated SBOMs and VEX templates from the image
+      # Extract generated SBOMs
       - name: Extract Build Metadata
         run: |
           docker run --rm \
@@ -55,7 +53,7 @@ jobs:
             --entrypoint cp \
             sec-tools:local -r /artifacts/. /host-artifacts/
 
-      # 5. Run Grype Scan
+      # Run Grype Scan
       - name: Run Grype Vulnerability Scan
         run: |
           docker run --rm \
@@ -72,7 +70,7 @@ jobs:
             --entrypoint /usr/local/bin/grype \
             sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o sarif > ${{ github.workspace }}/artifacts/grype.sarif
 
-      # 6. Run Trivy Scan
+      # Run Trivy Scan
       - name: Run Trivy Vulnerability Scan
         run: |
           docker run --rm \
@@ -89,7 +87,7 @@ jobs:
             --entrypoint /usr/local/bin/trivy \
             sec-tools:local sbom /host-artifacts/sbom.cdx.json --format sarif --output /host-artifacts/trivy.sarif
 
-      # 7. Run OSV-Scanner (New Step)
+      # Run OSV-Scanner
       - name: Run OSV-Scanner
         run: |
           docker run --rm \
@@ -112,7 +110,7 @@ jobs:
           echo "Final target PURL for VEX: $PURL"
           echo "purl=$PURL" >> "$GITHUB_OUTPUT"
 
-      # 8. Prepare OpenVEX Policy
+      # Prepare OpenVEX Policy
       - name: Prepare VEX Policy
         run: |
           jq \
@@ -123,10 +121,10 @@ jobs:
             )
             ' \
             security/policy/vex-policy.json \
-            > "${{ github.workspace }}/artifacts/vex.json" || true
+            > "${{ github.workspace }}/artifacts/vex.json"
 
 
-      # 9. Apply VEX Filtering
+      # Apply VEX Filtering
       - name: Filter Trivy SARIF with VEX
         run: |
           docker run --rm \
@@ -135,7 +133,7 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/trivy.sarif \
               /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/trivy-filtered.sarif || true
+              > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
               
 
       - name: Filter Grype Results with VEX
@@ -146,7 +144,7 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/grype.sarif \
               /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/grype-filtered.sarif || true
+              > ${{ github.workspace }}/artifacts/grype-filtered.sarif
 
 
       - name: Verify Filtered Security Gates
@@ -161,16 +159,16 @@ jobs:
           
           echo "#### Scanner Metrics" >> $GITHUB_STEP_SUMMARY
           echo "| Engine | Findings Before VEX | Findings After VEX |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---|---| Mini" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|---------------------:|-------------------:|" >> $GITHUB_STEP_SUMMARY
           echo "| **Trivy** | $TRIVY_BEFORE | $TRIVY_AFTER |" >> $GITHUB_STEP_SUMMARY
           echo "| **Grype** | $GRYPE_BEFORE | $GRYPE_AFTER |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "ℹ️ Compliance logging finished. This phase is non-blocking; all details are saved to artifacts." >> $GITHUB_STEP_SUMMARY
 
-      # 10. Generate Witness Evidence
+      # Generate Witness Evidence
       - name: Install Witness
         env:
-          WITNESS_VERSION: v0.9.1 # Pin to your desired version
+          WITNESS_VERSION: v0.12.0
         run: |
           curl -fsSL \
             -o witness.tar.gz \
@@ -180,7 +178,7 @@ jobs:
           chmod +x witness
           sudo mv witness /usr/local/bin/
 
-      # 11. Generate Process Attestation (Witness)
+      # Generate Process Attestation (Witness)
       - name: Generate Process Attestation (Witness)
         run: |
           witness run \
@@ -192,7 +190,13 @@ jobs:
             --timestamp-servers https://freetsa.org/tsr \
             -- true
 
-      # 11. Upload all resulting artifacts to the workflow run
+
+      - name: Generate Checksums
+        run: |
+          cd ${{ github.workspace }}/artifacts
+          sha256sum *.json *.sarif *.spdx > checksums.txt
+
+      # Upload all resulting artifacts to the workflow run
       - name: Upload Security Artifacts
         uses: actions/upload-artifact@v4
         with:
