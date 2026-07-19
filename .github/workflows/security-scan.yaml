@@ -257,7 +257,7 @@ jobs:
           jq '[.runs[].results[]] | length' artifacts/grype.sarif
 
           echo "Grype After vex filtering:"
-          q '[.runs[].results[]] | length' artifacts/grype-filtered.sarif
+          jq '[.runs[].results[]] | length' artifacts/grype-filtered.sarif
 
 
       - name: Verify Filtered Security Gates
