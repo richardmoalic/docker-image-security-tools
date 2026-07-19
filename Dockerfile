@@ -30,25 +30,25 @@ WORKDIR /downloads
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then ARCH="amd64"; else ARCH="arm64"; fi && \
     FILE="witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz" && \
+    BUNDLE="witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz.sigstore.json" && \
     curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/${FILE}" && \
     curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_checksums.txt" && \
-    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz.sigstore.json" && \
+    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/${BUNDLE}" && \
     \
     # Validate the SHA256 checksum 
     grep -E "[[:space:]]${FILE}$" witness_${WITNESS_VERSION}_checksums.txt > verification.txt && \
     sha256sum -c verification.txt && \
     \
     # Verify the signature via Cosign
-    cosign verify-blob witness.tar.gz \
-      --bundle witness.sigstore.json \
+    cosign verify-blob "${FILE}" \
+      --bundle "${BUNDLE}" \
       --certificate-identity-regexp "^https://github.com/in-toto/witness/" \
       --certificate-oidc-issuer "https://token.actions.githubusercontent.com" && \
     \
-    tar -xzf witness.tar.gz witness && \
-    chmod +x witness && \
-    mv witness /usr/local/bin/witness && \
-    rm witness.tar.gz witness_checksums.txt witness.sigstore.json verification.txt /usr/local/bin/cosign
-
+    tar -xzf "${FILE}" bin/witness && \
+    chmod +x bin/witness && \
+    mv bin/witness /usr/local/bin/witness && \
+    rm -rf "${FILE}" witness_${WITNESS_VERSION}_checksums.txt "${BUNDLE}" verification.txt /usr/local/bin/cosign bin
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
     ARCH="amd64"; EXPECTED_SHA="${SLSA_VERIFIER_SHA256_AMD64}"; \
