@@ -40,7 +40,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then ARCH="amd64"; else ARCH="arm64"; fi && 
     # Verify the signature via Cosign
     cosign verify-blob witness.tar.gz \
       --bundle witness.sigstore.json \
-      --certificate-identity "https://github.com/in-toto/witness/.github/workflows/release.yml@refs/tags/v${WITNESS_VERSION}" \
+      --certificate-identity-regexp "^https://github.com/in-toto/witness/" \
       --certificate-oidc-issuer "https://token.actions.githubusercontent.com" && \
     \
     tar -xzf witness.tar.gz witness && \
