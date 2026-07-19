@@ -14,7 +14,7 @@ FROM ghcr.io/google/osv-scanner:v2.4.0 AS osv_src
 
 FROM ghcr.io/openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f AS vexctl_src
 
-FROM alpine:3.19 AS bootstrap
+FROM alpine:3.23.5 AS bootstrap
 COPY --from=cosign_src /ko-app/cosign /usr/local/bin/cosign
 
 RUN apk add --no-cache curl tar ca-certificates
@@ -97,6 +97,3 @@ COPY --from=runtime /artifacts /
 USER 65532:65532
 
 ENTRYPOINT ["/usr/local/bin/trivy"]
-
-
-
