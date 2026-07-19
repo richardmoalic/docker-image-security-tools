@@ -29,12 +29,13 @@ WORKDIR /downloads
 
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then ARCH="amd64"; else ARCH="arm64"; fi && \
-    curl -fsSL "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz" -o witness.tar.gz && \
-    curl -fsSL "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_checksums.txt" -o witness_checksums.txt && \
-    curl -fsSL "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz.sigstore.json" -o witness.sigstore.json && \
+    FILE="witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz"
+    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/${FILE}" && \
+    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_checksums.txt" && \
+    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz.sigstore.json" && \
     \
     # Validate the SHA256 checksum 
-    grep "witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz" witness_checksums.txt > verification.txt && \
+    grep -E "[[:space:]]${FILE}$" witness_${WITNESS_VERSION}_checksums.txt > verification.txt && \
     sha256sum -c verification.txt && \
     \
     # Verify the signature via Cosign
