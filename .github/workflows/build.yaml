@@ -35,9 +35,9 @@ jobs:
       - name: Determine Next Version
         id: steps-version
         run: |
-          NEXT_VERSION=$(svu next --prefix="" --force-patch-on-no-tag)
+          NEXT_VERSION=$(svu next --tag.prefix="" --always)
           echo "version=${NEXT_VERSION}" >> $GITHUB_OUTPUT
-
+          
       - name: Login to GHCR
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #v4.4.0
         with:
