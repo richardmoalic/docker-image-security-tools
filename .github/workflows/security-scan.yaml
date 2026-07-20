@@ -274,7 +274,7 @@ jobs:
           cd "$ARTIFACTS_DIR"
           
           shopt -s nullglob
-          sha256sum *.{json,sarif} > checksums.txt
+          sha256sum *.{json,sarif} > ${{ env.ARTIFACTS_DIR }}/checksums.txt
           shopt -u nullglob
 
       - name: Generate Checksums Predicate
