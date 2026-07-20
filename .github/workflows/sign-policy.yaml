@@ -40,17 +40,23 @@ jobs:
         env:
           WITNESS_POLICY_KEY: ${{ secrets.WITNESS_POLICY_PRIVATE_KEY }}
         run: |
-          # Load private key from GitHub secret into temporary file securely
+          set -euo pipefail
+
+          if [ -z "$WITNESS_POLICY_KEY" ]; then
+            echo "❌ WITNESS_POLICY_PRIVATE_KEY secret is empty or missing."
+            exit 1
+          fi
+
+          # Load private key
           echo "$WITNESS_POLICY_KEY" > /tmp/policy-signer-key.pem
           chmod 600 /tmp/policy-signer-key.pem
 
-          # Execute Witness policy signing
           witness sign \
-            --key /tmp/policy-signer-key.pem \
-            --infile "${{ github.event.inputs.policy_path }}" \
-            --outfile "${{ github.event.inputs.output_path }}"
+            -f "${{ inputs.policy_path }}" \
+            --signer-file-key-path /tmp/policy-signer-key.pem \
+            -o "${{ inputs.output_path }}"
 
-          # Cleanup private key material immediately
+          # Cleanup private key material
           rm -f /tmp/policy-signer-key.pem
 
       - name: Verify Signed Envelope Structure
