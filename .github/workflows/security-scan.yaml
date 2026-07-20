@@ -134,18 +134,28 @@ jobs:
       # Run OSV-Scanner
       - name: Run OSV-Scanner
         run: |
-          set -euo pipefail
+         set -euo pipefail
+
           TMP="$(mktemp "$ARTIFACTS_DIR/osv.XXXXXX")"
           trap 'rm -f "$TMP"' EXIT         
           
+          set +e
           docker run --rm \
             -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
             --entrypoint /usr/local/bin/osv-scanner \
             sec-tools:local \
             -L $CONTAINER_ARTIFACTS_DIR/sbom.spdx.json \
             --format json \
-            --fail-on=none \
             > "$TMP"
+          EXIT_CODE=$?
+          set -e
+
+          # Exit code 0 = No vulnerabilities found
+          # Exit code 1 = Vulnerabilities found (expected, artifact populated)
+          if [ "$EXIT_CODE" -ne 0 ] && [ "$EXIT_CODE" -ne 1 ]; then
+            echo "❌ OSV-Scanner failed with fatal execution error (exit code: $EXIT_CODE)"
+            exit "$EXIT_CODE"
+          fi
 
           mv "$TMP" "$ARTIFACTS_DIR/osv.json"
           trap - EXIT
