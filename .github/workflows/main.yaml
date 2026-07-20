@@ -16,6 +16,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
   security-scan:
     name: 2. Security Scanning Stage
@@ -58,6 +59,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
     with:
       image_digest: ${{ needs.build.outputs.digest }}
       version: ${{ needs.build.outputs.version }}
