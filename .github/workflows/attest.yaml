@@ -19,11 +19,14 @@ jobs:
     name: Sign & Attest Metadata
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare Workspace Directory
+        run: mkdir -p ${{ github.workspace }}/attest-artifacts
+
       - name: Download Security Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
         with:
           name: security-artifacts
-          path: ./artifacts
+          path: ${{ github.workspace }}/security-artifacts
 
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #v4.4.0
@@ -40,28 +43,28 @@ jobs:
         run: cosign sign --yes "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach SPDX SBOM
-        run: cosign attach sbom --sbom artifacts/sbom.spdx.json "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+        run: cosign attach sbom --sbom ${{ github.workspace }}/security-artifacts/sbom.spdx.json "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach CycloneDX Attestation
-        run: cosign attest --yes --predicate artifacts/sbom.cdx.json --type cyclonedx "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+        run: cosign attest --yes --predicate ${{ github.workspace }}/security-artifacts/sbom.cdx.json --type cyclonedx "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach Grype Vulnerability Attestation
-        run: cosign attest --yes --predicate artifacts/grype-filtered.sarif --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+        run: cosign attest --yes --predicate ${{ github.workspace }}/security-artifacts//grype-filtered.sarif --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach Trivy Vulnerability Attestation
-        run: cosign attest --yes --predicate artifacts/trivy-filtered.sarif --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+        run: cosign attest --yes --predicate ${{ github.workspace }}/security-artifacts//trivy-filtered.sarif --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach OSV Attestation
-        run: cosign attest --yes --predicate artifacts/osv.json --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+        run: cosign attest --yes --predicate ${{ github.workspace }}/security-artifacts//osv.json --type vuln "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach OpenVEX Attestation
-        run: cosign attest --yes --predicate artifacts/vex.json --type openvex "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+        run: cosign attest --yes --predicate ${{ github.workspace }}/security-artifacts//vex.json --type openvex "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
 
       - name: Attach Witness Attestation
-        run: cosign attest --yes --predicate artifacts/witness.dsse.json --type https://witness.dev/attestation/v0.1 "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+        run: cosign attest --yes --predicate ${{ github.workspace }}/security-artifacts//witness.dsse.json --type https://witness.dev/attestation/v0.1 "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
       
       - name: Attach Checksums Attestation
-        run: cosign attest --yes --predicate artifacts/checksums.json --type https://in-toto.io/Statement/v0.1
+        run: cosign attest --yes --predicate ${{ github.workspace }}/security-artifacts//checksums.json --type https://in-toto.io/Statement/v0.1
 
       - name: Generate SLSA Provenance
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 #v4.1.1
@@ -76,7 +79,7 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE }}
           subject-digest: ${{ inputs.image_digest }}
           predicate-type: https://spdx.dev/Document
-          predicate-path: artifacts/sbom.spdx.json
+          predicate-path: ${{ github.workspace }}/security-artifacts//sbom.spdx.json
           push-to-registry: true
 
       - name: Install Witness
@@ -107,3 +110,4 @@ jobs:
         with:
           name: attest-artifacts
           path: ${{ github.workspace }}/attest-artifacts/
+          retention-days: 5

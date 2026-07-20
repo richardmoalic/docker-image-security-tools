@@ -69,12 +69,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Prepare Workspace Artifact Directory
+        run: mkdir -p ${{ github.workspace }}/build-artifacts
+
       - name: Export Security Artifacts
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a #v7.3.3
         with:
           context: .
           target: artifacts
-          outputs: type=local,dest=artifacts
+          outputs: type=local,dest=${{ github.workspace }}/build-artifacts
           cache-from: type=gha
 
       - name: Install Witness
@@ -105,3 +108,4 @@ jobs:
         with:
           name: build-artifacts
           path: ${{ github.workspace }}/build-artifacts/
+          retention-days: 5

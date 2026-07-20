@@ -16,6 +16,30 @@ jobs:
     name: Cryptographic & Vulnerability Verification
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Workspace Directory
+        run: mkdir -p ${{ github.workspace }}/verify-artifacts
+      
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
+        with:
+          name: build-artifacts
+          path: ${{ github.workspace }}/build-artifacts
+
+      - name: Download Security Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
+        with:
+          name: security-artifacts
+          path: ${{ github.workspace }}/security-artifacts
+
+      - name: Download Attest Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
+        with:
+          name: attest-artifacts
+          path: ${{ github.workspace }}/attest-artifacts
+
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #v4.4.0
         with:
@@ -25,7 +49,8 @@ jobs:
 
       - name: Verify checksums
         run: |
-          sha256sum -c security-artifacts/checksums.txt
+          cd ${{ github.workspace }}/security-artifacts
+          sha256sum -c checksums.txt
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@ba7bc0a3fef59531c69a25acd34668d6d3fe6f22 #v4.1.0
@@ -75,15 +100,15 @@ jobs:
       - name: Verify Witness Attestations Against Policy
         run: |
           witness verify \
-          --policy security/policy/in-toto.signed.json \
-          --attestation build-artifacts/witness-build.dsse.json \
-          --attestation security-artifacts/witness-security-scan.dsse.json \
-          --attestation attest-artifacts/witness-attest.dsse.json \
-          --attestation verify-artifacts/witness-verify.dsse.json
+          --attestation ${{ github.workspace }}/build-artifacts/witness-build.dsse.json \
+          --attestation ${{ github.workspace }}/security-artifacts/witness-security-scan.dsse.json \
+          --attestation ${{ github.workspace }}/attest-artifacts/witness-attest.dsse.json \
+          --attestation ${{ github.workspace }}/verify-artifacts/witness-verify.dsse.json
 
       - name: Upload verify Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: verify-artifacts
           path: ${{ github.workspace }}/verify-artifacts/
+          retention-days: 5
     

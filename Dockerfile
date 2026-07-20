@@ -14,6 +14,8 @@ FROM ghcr.io/google/osv-scanner:v2.4.0 AS osv_src
 
 FROM ghcr.io/openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f AS vexctl_src
 
+FROM ghcr.io/in-toto/witness:0.12.0 as witness_src
+
 FROM alpine:3.23.5 AS bootstrap
 COPY --from=cosign_src /ko-app/cosign /usr/local/bin/cosign
 
@@ -27,28 +29,6 @@ ARG WITNESS_VERSION=0.12.0
 ARG TARGETARCH
 WORKDIR /downloads
 
-
-RUN if [ "$TARGETARCH" = "amd64" ]; then ARCH="amd64"; else ARCH="arm64"; fi && \
-    FILE="witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz" && \
-    BUNDLE="witness_${WITNESS_VERSION}_linux_${ARCH}.tar.gz.sigstore.json" && \
-    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/${FILE}" && \
-    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/witness_${WITNESS_VERSION}_checksums.txt" && \
-    curl -fsSLO "https://github.com/in-toto/witness/releases/download/v${WITNESS_VERSION}/${BUNDLE}" && \
-    \
-    # Validate the SHA256 checksum 
-    grep -E "[[:space:]]${FILE}$" witness_${WITNESS_VERSION}_checksums.txt > verification.txt && \
-    sha256sum -c verification.txt && \
-    \
-    # Verify the signature via Cosign
-    cosign verify-blob "${FILE}" \
-      --bundle "${BUNDLE}" \
-      --certificate-identity-regexp "^https://github.com/in-toto/witness/" \
-      --certificate-oidc-issuer "https://token.actions.githubusercontent.com" && \
-    \
-    tar -xzf "${FILE}" witness && \
-    chmod +x witness && \
-    mv witness /usr/local/bin/witness && \
-    rm -rf "${FILE}" witness_${WITNESS_VERSION}_checksums.txt "${BUNDLE}" verification.txt /usr/local/bin/cosign bin
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
     ARCH="amd64"; EXPECTED_SHA="${SLSA_VERIFIER_SHA256_AMD64}"; \
@@ -76,7 +56,7 @@ COPY --from=syft_src /syft /usr/local/bin/syft
 COPY --from=grype_src /grype /usr/local/bin/grype
 COPY --from=osv_src /osv-scanner /usr/local/bin/osv-scanner
 COPY --from=vexctl_src /ko-app/vexctl /usr/local/bin/vexctl
-COPY --from=bootstrap /usr/local/bin/witness /usr/local/bin/witness
+COPY --from=witness_src /ko-app/witness /usr/local/bin/witness
 COPY --from=bootstrap /usr/local/bin/slsa-verifier /usr/local/bin/slsa-verifier
 
 

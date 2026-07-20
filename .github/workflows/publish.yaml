@@ -24,6 +24,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Prepare Workspace Directory
+        run: mkdir -p ${{ github.workspace }}/publish-artifacts
+
       - name: Fetch Remote Tags
         run: git fetch --tags --force
 
@@ -31,7 +34,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #8.0.1
         with:
           name: security-artifacts
-          path: ./artifacts
+          path: ${{ github.workspace }}/security-artifacts
 
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #4.4.0
@@ -64,7 +67,7 @@ jobs:
               "grype": "0.115.0",
               "osv-scanner": "2.4.0",
               "vexctl": "0.4.1",
-              "witness": "0.7.0",
+              "witness": "0.12.0",
               "slsa-verifier": "2.4.1"
             }
           }
@@ -85,18 +88,18 @@ jobs:
           tag_name: ${{ inputs.version }}
           files: |
             manifest.json
-            ./artifacts/checksums.txt
-            ./artifacts/checksums.json
-            ./artifacts/checksums.txt.sigstore
-            ./artifacts/sbom.spdx.json
-            ./artifacts/sbom.cdx.json
-            ./artifacts/grype-filtered.sarif
-            ./artifacts/grype.json
-            ./artifacts/trivy.json
-            ./artifacts/trivy-filtered.sarif
-            ./artifacts/osv.json
-            ./artifacts/vex.json
-            ./artifacts/witness.dsse.json
+            ${{ github.workspace }}/security-artifacts/checksums.txt
+            ${{ github.workspace }}/security-artifacts/checksums.json
+            ${{ github.workspace }}/security-artifacts/checksums.txt.sigstore
+            ${{ github.workspace }}/security-artifacts/sbom.spdx.json
+            ${{ github.workspace }}/security-artifacts/sbom.cdx.json
+            ${{ github.workspace }}/security-artifacts/grype-filtered.sarif
+            ${{ github.workspace }}/security-artifacts/grype.json
+            ${{ github.workspace }}/security-artifacts/trivy.json
+            ${{ github.workspace }}/security-artifacts/trivy-filtered.sarif
+            ${{ github.workspace }}/security-artifacts/osv.json
+            ${{ github.workspace }}/security-artifacts/vex.json
+            ${{ github.workspace }}/security-artifacts/witness-security-scan.dsse.json
 
       - name: Install Witness
         env:
@@ -114,7 +117,7 @@ jobs:
         run: |
           witness run \
             --step publish \
-            --outfile "${{ github.workspace }}/publish-artifacts/witness-verify.dsse.json" \
+            --outfile "${{ github.workspace }}/publish-artifacts/witness-publish.dsse.json" \
             --signer-fulcio-url https://fulcio.sigstore.dev \
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
@@ -130,10 +133,11 @@ jobs:
         run: |
           witness verify \
           --policy security/policy/in-toto.signed.json \
-          --attestation publish-artifacts/witness-publish.dsse.json
+          --attestation ${{ github.workspace }}/publish-artifacts/witness-publish.dsse.json
 
       - name: Upload Publisg Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: publish-artifacts
           path: ${{ github.workspace }}/publish-artifacts/
+          retention-days: 5
