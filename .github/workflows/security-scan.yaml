@@ -15,8 +15,8 @@ env:
   IMAGE: ${{ github.repository }}
   ARTIFACTS_DIR: ${{ github.workspace }}/security-artifacts
   CONTAINER_ARTIFACTS_DIR: /host-artifacts
-  TRIVY_CACHE_DIR: ~/.cache/trivy
-  GRYPE_CACHE_DIR: ~/.cache/grype
+  TRIVY_CACHE_DIR: ${{ runner.temp }}/trivy-cache
+  GRYPE_CACHE_DIR: ${{ runner.temp }}/grype-cache
 
 jobs:
   build-and-scan:
