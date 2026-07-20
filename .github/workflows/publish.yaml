@@ -13,11 +13,15 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository }}
+  SECURITY_ARTIFACTS_DIR: ${{ github.workspace }}/security-artifacts
+  ARTIFACTS_DIR: ${{ github.workspace }}/publish-artifacts
 
 jobs:
   publish:
     name: Final Promotion & Release
     runs-on: ubuntu-latest
+    env:
+      TARGET_IMAGE: ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  #v7.0.0
@@ -25,7 +29,7 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare Workspace Directory
-        run: mkdir -p ${{ github.workspace }}/publish-artifacts
+        run: mkdir -p "$ARTIFACTS_DIR"
 
       - name: Fetch Remote Tags
         run: git fetch --tags --force
@@ -34,7 +38,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #8.0.1
         with:
           name: security-artifacts
-          path: ${{ github.workspace }}/security-artifacts
+          path: ${{ env.SECURITY_ARTIFACTS_DIR }}
 
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #4.4.0
@@ -48,11 +52,11 @@ jobs:
           curl -sL https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz | tar -xzf - crane
           sudo mv crane /usr/local/bin/
 
-      # Promote the secure, verified image to production tags cleanly
+      # Promote the secure, verified image to production tags
       - name: Tag OCI Manifest in Registry
         run: |
-          crane tag "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}" "${{ inputs.version }}"
-          crane tag "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}" "latest"
+          crane tag "$TARGET_IMAGE" "${{ inputs.version }}"
+          crane tag "$TARGET_IMAGE" "latest"
 
       - name: Generate Tool Manifest
         run: |
@@ -88,18 +92,18 @@ jobs:
           tag_name: ${{ inputs.version }}
           files: |
             manifest.json
-            ${{ github.workspace }}/security-artifacts/checksums.txt
-            ${{ github.workspace }}/security-artifacts/checksums.json
-            ${{ github.workspace }}/security-artifacts/checksums.txt.sigstore
-            ${{ github.workspace }}/security-artifacts/sbom.spdx.json
-            ${{ github.workspace }}/security-artifacts/sbom.cdx.json
-            ${{ github.workspace }}/security-artifacts/grype-filtered.sarif
-            ${{ github.workspace }}/security-artifacts/grype.json
-            ${{ github.workspace }}/security-artifacts/trivy.json
-            ${{ github.workspace }}/security-artifacts/trivy-filtered.sarif
-            ${{ github.workspace }}/security-artifacts/osv.json
-            ${{ github.workspace }}/security-artifacts/vex.json
-            ${{ github.workspace }}/security-artifacts/witness-security-scan.dsse.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/checksums.txt
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/checksums.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/checksums.txt.sigstore
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/sbom.spdx.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/sbom.cdx.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/grype-filtered.sarif
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/grype.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/trivy.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/trivy-filtered.sarif
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/osv.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/vex.json
+            ${{ env.SECURITY_ARTIFACTS_DIR }}/witness-security-scan.dsse.json
 
       - name: Install Witness
         env:
@@ -117,7 +121,7 @@ jobs:
         run: |
           witness run \
             --step publish \
-            --outfile "${{ github.workspace }}/publish-artifacts/witness-publish.dsse.json" \
+            --outfile "$ARTIFACTS_DIR/witness-publish.dsse.json" \
             --signer-fulcio-url https://fulcio.sigstore.dev \
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
@@ -127,17 +131,17 @@ jobs:
       - name: Verify Policy
         run: |
           witness verify-policy \
-              --policy security/policy/in-toto.signed.json
+            --policy security/policy/in-toto.signed.json
 
       - name: Verify Witness Attestations Against Policy
         run: |
           witness verify \
-          --policy security/policy/in-toto.signed.json \
-          --attestation ${{ github.workspace }}/publish-artifacts/witness-publish.dsse.json
+            --policy security/policy/in-toto.signed.json \
+            --attestation "$ARTIFACTS_DIR/witness-publish.dsse.json"
 
-      - name: Upload Publisg Artifacts
+      - name: Upload Publish Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: publish-artifacts
-          path: ${{ github.workspace }}/publish-artifacts/
+          path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5

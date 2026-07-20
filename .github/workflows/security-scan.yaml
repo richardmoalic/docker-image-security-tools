@@ -13,6 +13,10 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository }}
+  ARTIFACTS_DIR: ${{ github.workspace }}/security-artifacts
+  CONTAINER_ARTIFACTS_DIR: /host-artifacts
+  TRIVY_CACHE_DIR: ~/.cache/trivy
+  GRYPE_CACHE_DIR: ~/.cache/grype
 
 jobs:
   build-and-scan:
@@ -24,16 +28,16 @@ jobs:
 
       - name: Prepare Workspace Directories
         run: |
-          mkdir -p ${{ github.workspace }}/security-artifacts
-          mkdir -p ~/.cache/trivy ~/.cache/grype
+          mkdir -p "$ARTIFACTS_DIR"
+          mkdir -p "$TRIVY_CACHE_DIR" "$GRYPE_CACHE_DIR"
 
       # Set up caching for vulnerability databases
       - name: Cache Vulnerability Databases
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #6.1.0
         with:
           path: |
-            ~/.cache/trivy
-            ~/.cache/grype
+            ${{ env.TRIVY_CACHE_DIR }}
+            ${{ env.GRYPE_CACHE_DIR }}
           key: ${{ runner.os }}-security-db-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-security-db-
@@ -49,60 +53,111 @@ jobs:
       - name: Extract Build Metadata
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
             --entrypoint cp \
-            sec-tools:local -r /artifacts/. /host-artifacts/
+            sec-tools:local -r /artifacts/. "$CONTAINER_ARTIFACTS_DIR/"
 
       # Run Grype Scan
       - name: Run Grype Vulnerability Scan
         run: |
-          docker run --rm \
-            -v ~/.cache/grype:/root/.cache/grype \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
-            --entrypoint /usr/local/bin/grype \
-            sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o json > ${{ github.workspace }}/security-artifacts/grype.json
+          set -euo pipefail
+          TMP="$(mktemp "$ARTIFACTS_DIR/grype.XXXXXX")"
+          trap 'rm -f "$TMP"' EXIT
 
+          docker run --rm \
+            -v "$GRYPE_CACHE_DIR:/root/.cache/grype" \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
+            --entrypoint /usr/local/bin/grype \
+            sec-tools:local \
+            sbom:$CONTAINER_ARTIFACTS_DIR/sbom.spdx.json \
+            -o json \
+            > "$TMP"
+
+          mv "$TMP" "$ARTIFACTS_DIR/grype.json"
+          trap - EXIT
+          
       - name: Run Grype Sarif Report
         run: |
+          set -euo pipefail
+          TMP="$(mktemp "$ARTIFACTS_DIR/grype-sarif.XXXXXX")"
+          trap 'rm -f "$TMP"' EXIT
+
           docker run --rm \
-            -v ~/.cache/grype:/root/.cache/grype \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
+            -v "$GRYPE_CACHE_DIR:/root/.cache/grype" \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
             --entrypoint /usr/local/bin/grype \
-            sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o sarif > ${{ github.workspace }}/security-artifacts/grype.sarif
+            sec-tools:local \
+            sbom:$CONTAINER_ARTIFACTS_DIR/sbom.spdx.json \
+            -o sarif \
+            > "$TMP"
+
+          mv "$TMP" "$ARTIFACTS_DIR/grype.sarif"
+          trap - EXIT
 
       # Run Trivy Scan
       - name: Run Trivy Vulnerability Scan
         run: |
+          set -euo pipefail
+          TMP="$(mktemp "$ARTIFACTS_DIR/trivy.XXXXXX")"
+          trap 'rm -f "$TMP"' EXIT
+
           docker run --rm \
-            -v ~/.cache/trivy:/root/.cache/trivy \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
+            -v "$TRIVY_CACHE_DIR:/root/.cache/trivy" \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
             --entrypoint /usr/local/bin/trivy \
-            sec-tools:local sbom /host-artifacts/sbom.cdx.json --format json --output /host-artifacts/trivy.json
+            sec-tools:local \
+            sbom $CONTAINER_ARTIFACTS_DIR/sbom.cdx.json \
+            --format json \
+            --output $CONTAINER_ARTIFACTS_DIR/"$(basename "$TMP")"
+
+          mv "$TMP" "$ARTIFACTS_DIR/trivy.json"
+          trap - EXIT
       
       - name: Generate Trivy SARIF Report
         run: |
+          set -euo pipefail
+          TMP="$(mktemp "$ARTIFACTS_DIR/trivy-sarif.XXXXXX")"
+          trap 'rm -f "$TMP"' EXIT
+
           docker run --rm \
-            -v ~/.cache/trivy:/root/.cache/trivy \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
+            -v "$TRIVY_CACHE_DIR:/root/.cache/trivy" \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
             --entrypoint /usr/local/bin/trivy \
-            sec-tools:local sbom /host-artifacts/sbom.cdx.json --format sarif --output /host-artifacts/trivy.sarif
+            sec-tools:local \
+            sbom $CONTAINER_ARTIFACTS_DIR/sbom.cdx.json \
+            --format sarif \
+            --output $CONTAINER_ARTIFACTS_DIR/"$(basename "$TMP")"
+
+          mv "$TMP" "$ARTIFACTS_DIR/trivy.sarif"
+          trap - EXIT
 
       # Run OSV-Scanner
       - name: Run OSV-Scanner
         run: |
+          set -euo pipefail
+          TMP="$(mktemp "$ARTIFACTS_DIR/osv.XXXXXX")"
+          trap 'rm -f "$TMP"' EXIT         
+          
           docker run --rm \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
             --entrypoint /usr/local/bin/osv-scanner \
-            sec-tools:local --sbom /host-artifacts/sbom.spdx.json --format json > ${{ github.workspace }}/security-artifacts/osv.json
+            sec-tools:local \
+            -L $CONTAINER_ARTIFACTS_DIR/sbom.spdx.json \
+            --format json \
+            --no-check \
+            > "$TMP"
+
+          mv "$TMP" "$ARTIFACTS_DIR/osv.json"
+          trap - EXIT
 
       - name: Extract Product PURL
         id: product
         run: |
-          PURL=$(jq -r '.metadata.component.purl // empty' "${{ github.workspace }}/security-artifacts/sbom.cdx.json")
+          PURL=$(jq -r '.metadata.component.purl // empty' "$ARTIFACTS_DIR/sbom.cdx.json")
 
           if [ -z "$PURL" ] || [ "$PURL" = "null" ]; then
             echo "⚠️ PURL not found in SBOM metadata. Building clean fallback..."
-            REGISTRY_PATH="${{ env.REGISTRY }}/${{ env.IMAGE }}"
+            REGISTRY_PATH="${REGISTRY}/${IMAGE}"
             IDENTIFIER="${{ inputs.image_digest || github.sha }}"
             PURL=$(echo "pkg:oci/${REGISTRY_PATH}@${IDENTIFIER}" | tr '[:upper:]' '[:lower:]')
           fi
@@ -121,41 +176,54 @@ jobs:
             )
             ' \
             security/policy/vex-policy.json \
-            > "${{ github.workspace }}/security-artifacts/vex.json"
-
+            > "$ARTIFACTS_DIR/vex.json"
 
       # Apply VEX Filtering
       - name: Filter Trivy SARIF with VEX
         run: |
+          set -euo pipefail
+          TMP="$(mktemp "$ARTIFACTS_DIR/trivy-filtered.XXXXXX")"
+          trap 'rm -f "$TMP"' EXIT
+
           docker run --rm \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
             --entrypoint /usr/local/bin/vexctl \
-            sec-tools:local filter \
-              /host-artifacts/trivy.sarif \
-              /host-artifacts/vex.json \
-              > ${{ github.workspace }}/security-artifacts/trivy-filtered.sarif
-              
+            sec-tools:local \
+            filter \
+            $CONTAINER_ARTIFACTS_DIR/trivy.sarif \
+            $CONTAINER_ARTIFACTS_DIR/vex.json \
+            > "$TMP"
+
+          mv "$TMP" "$ARTIFACTS_DIR/trivy-filtered.sarif"
+          trap - EXIT
 
       - name: Filter Grype Results with VEX
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/security-artifacts:/host-artifacts \
-            --entrypoint /usr/local/bin/vexctl \
-            sec-tools:local filter \
-              /host-artifacts/grype.sarif \
-              /host-artifacts/vex.json \
-              > ${{ github.workspace }}/security-artifacts/grype-filtered.sarif
+          set -euo pipefail
+          TMP="$(mktemp "$ARTIFACTS_DIR/grype-filtered.XXXXXX")"
+          trap 'rm -f "$TMP"' EXIT
 
+          docker run --rm \
+            -v "$ARTIFACTS_DIR:$CONTAINER_ARTIFACTS_DIR" \
+            --entrypoint /usr/local/bin/vexctl \
+            sec-tools:local \
+            filter \
+            $CONTAINER_ARTIFACTS_DIR/grype.sarif \
+            $CONTAINER_ARTIFACTS_DIR/vex.json \
+            > "$TMP"
+
+          mv "$TMP" "$ARTIFACTS_DIR/grype-filtered.sarif"
+          trap - EXIT
 
       - name: Verify Filtered Security Gates
         run: |
           echo "### Security Compliance Metadata" >> $GITHUB_STEP_SUMMARY
           echo "Evaluating remaining vulnerabilities after VEX statements applied..."
           
-          TRIVY_BEFORE=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/trivy.sarif 2>/dev/null || echo "0")
-          TRIVY_AFTER=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/trivy-filtered.sarif 2>/dev/null || echo "0")
-          GRYPE_BEFORE=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/grype.sarif 2>/dev/null || echo "0")
-          GRYPE_AFTER=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/grype-filtered.sarif 2>/dev/null || echo "0")
+          TRIVY_BEFORE=$(jq '[.runs[].results[]] | length' "$ARTIFACTS_DIR/trivy.sarif" 2>/dev/null || echo "0")
+          TRIVY_AFTER=$(jq '[.runs[].results[]] | length' "$ARTIFACTS_DIR/trivy-filtered.sarif" 2>/dev/null || echo "0")
+          GRYPE_BEFORE=$(jq '[.runs[].results[]] | length' "$ARTIFACTS_DIR/grype.sarif" 2>/dev/null || echo "0")
+          GRYPE_AFTER=$(jq '[.runs[].results[]] | length' "$ARTIFACTS_DIR/grype-filtered.sarif" 2>/dev/null || echo "0")
           
           echo "#### Scanner Metrics" >> $GITHUB_STEP_SUMMARY
           echo "| Engine | Findings Before VEX | Findings After VEX |" >> $GITHUB_STEP_SUMMARY
@@ -183,17 +251,16 @@ jobs:
         run: |
           witness run \
             --step security-scan \
-            --outfile "${{ github.workspace }}/security-artifacts/witness-security-scan.dsse.json" \
+            --outfile "$ARTIFACTS_DIR/witness-security-scan.dsse.json" \
             --signer-fulcio-url https://fulcio.sigstore.dev \
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
             -- true
 
-
       - name: Generate Checksums
         run: |
-          cd ${{ github.workspace }}/security-artifacts
+          cd "$ARTIFACTS_DIR"
           
           shopt -s nullglob
           sha256sum *.{json,sarif} > checksums.txt
@@ -201,7 +268,7 @@ jobs:
 
       - name: Generate Checksums Predicate
         run: |
-          cd ${{ github.workspace }}/security-artifacts
+          cd "$ARTIFACTS_DIR"
           
           shopt -s nullglob
           sha256sum *.{json,sarif} | jq -R -s --arg ver "${{ inputs.version }}" '
@@ -213,18 +280,16 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
-
       - name: Sign Checksums File
         run: |
           cosign sign-blob \
             --yes \
-            --output-signature "${{ github.workspace }}/security-artifacts/checksums.txt.sigstore" \
-            "${{ github.workspace }}/security-artifacts/checksums.txt"
-
+            --output-signature "$ARTIFACTS_DIR/checksums.txt.sigstore" \
+            "$ARTIFACTS_DIR/checksums.txt"
 
       - name: Upload Security Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: security-artifacts
-          path: ${{ github.workspace }}/security-artifacts/
+          path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5

@@ -10,35 +10,41 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  BUILD_ARTIFACTS_DIR: ${{ github.workspace }}/build-artifacts
+  SECURITY_ARTIFACTS_DIR: ${{ github.workspace }}/security-artifacts
+  ATTEST_ARTIFACTS_DIR: ${{ github.workspace }}/attest-artifacts
+  ARTIFACTS_DIR: ${{ github.workspace }}/verify-artifacts
 
 jobs:
   verify:
     name: Cryptographic & Vulnerability Verification
     runs-on: ubuntu-latest
+    env:
+      TARGET_IMAGE: ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Prepare Workspace Directory
-        run: mkdir -p ${{ github.workspace }}/verify-artifacts
+        run: mkdir -p "$ARTIFACTS_DIR"
       
       - name: Download Build Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
         with:
           name: build-artifacts
-          path: ${{ github.workspace }}/build-artifacts
+          path: ${{ env.BUILD_ARTIFACTS_DIR }}
 
       - name: Download Security Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
         with:
           name: security-artifacts
-          path: ${{ github.workspace }}/security-artifacts
+          path: ${{ env.SECURITY_ARTIFACTS_DIR }}
 
       - name: Download Attest Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
         with:
           name: attest-artifacts
-          path: ${{ github.workspace }}/attest-artifacts
+          path: ${{ env.ATTEST_ARTIFACTS_DIR }}
 
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #v4.4.0
@@ -49,7 +55,7 @@ jobs:
 
       - name: Verify checksums
         run: |
-          cd ${{ github.workspace }}/security-artifacts
+          cd "$SECURITY_ARTIFACTS_DIR"
           sha256sum -c checksums.txt
 
       - name: Install Cosign
@@ -60,13 +66,13 @@ jobs:
           cosign verify \
             --certificate-identity-regexp "https://github.com/.*" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}"
+            "$TARGET_IMAGE"
 
       - name: Verify Attestation Signatures
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh attestation verify "oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
+          gh attestation verify "oci://$TARGET_IMAGE" \
             --owner "${{ github.repository_owner }}"
 
       - name: Install Witness
@@ -85,7 +91,7 @@ jobs:
         run: |
           witness run \
             --step verify \
-            --outfile "${{ github.workspace }}/verify-artifacts/witness-verify.dsse.json" \
+            --outfile "$ARTIFACTS_DIR/witness-verify.dsse.json" \
             --signer-fulcio-url https://fulcio.sigstore.dev \
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
@@ -95,20 +101,19 @@ jobs:
       - name: Verify Policy
         run: |
           witness verify-policy \
-              --policy security/policy/in-toto.signed.json
+            --policy security/policy/in-toto.signed.json
 
       - name: Verify Witness Attestations Against Policy
         run: |
           witness verify \
-          --attestation ${{ github.workspace }}/build-artifacts/witness-build.dsse.json \
-          --attestation ${{ github.workspace }}/security-artifacts/witness-security-scan.dsse.json \
-          --attestation ${{ github.workspace }}/attest-artifacts/witness-attest.dsse.json \
-          --attestation ${{ github.workspace }}/verify-artifacts/witness-verify.dsse.json
+            --attestation "$BUILD_ARTIFACTS_DIR/witness-build.dsse.json" \
+            --attestation "$SECURITY_ARTIFACTS_DIR/witness-security-scan.dsse.json" \
+            --attestation "$ATTEST_ARTIFACTS_DIR/witness-attest.dsse.json" \
+            --attestation "$ARTIFACTS_DIR/witness-verify.dsse.json"
 
-      - name: Upload verify Artifacts
+      - name: Upload Verify Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: verify-artifacts
-          path: ${{ github.workspace }}/verify-artifacts/
+          path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5
-    
