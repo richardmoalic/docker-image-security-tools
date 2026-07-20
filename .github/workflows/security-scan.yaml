@@ -144,7 +144,7 @@ jobs:
             sec-tools:local \
             -L $CONTAINER_ARTIFACTS_DIR/sbom.spdx.json \
             --format json \
-            --no-check \
+            --fail-on=none \
             > "$TMP"
 
           mv "$TMP" "$ARTIFACTS_DIR/osv.json"
