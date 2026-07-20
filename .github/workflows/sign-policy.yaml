@@ -36,6 +36,11 @@ jobs:
           chmod +x witness
           sudo mv witness /usr/local/bin/
 
+      - name: Show Witness CLI
+        run: |
+          witness version
+          witness sign --help
+
       - name: Sign Policy
         env:
           WITNESS_POLICY_KEY: ${{ secrets.WITNESS_POLICY_PRIVATE_KEY }}
