@@ -53,7 +53,7 @@ jobs:
           fi
 
           # Load private key
-          echo "$WITNESS_POLICY_KEY" > /tmp/policy-signer-key.pem
+          printf '%s\n' "$WITNESS_POLICY_KEY" > /tmp/policy-signer-key.pem
           chmod 600 /tmp/policy-signer-key.pem
 
           witness sign \
