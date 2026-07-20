@@ -63,9 +63,6 @@ jobs:
 
       - name: Attach OpenVEX Attestation
         run: cosign attest --yes --predicate "$SECURITY_ARTIFACTS_DIR/vex.json" --type openvex "$TARGET_IMAGE"
-
-      - name: Attach Witness Attestation
-        run: cosign attest --yes --predicate "$SECURITY_ARTIFACTS_DIR/witness.dsse.json" --type https://witness.dev/attestation/v0.1 "$TARGET_IMAGE"
       
       - name: Attach Checksums Attestation
         run: cosign attest --yes --predicate "$SECURITY_ARTIFACTS_DIR/checksums.json" --type https://in-toto.io/Statement/v0.1 "$TARGET_IMAGE"

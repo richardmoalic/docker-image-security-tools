@@ -78,3 +78,9 @@ USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/trivy"]
 
 
+Run cosign attest --yes --predicate "$SECURITY_ARTIFACTS_DIR/witness.dsse.json" --type https://witness.dev/attestation/v0.1 "$TARGET_IMAGE"
+Using payload from: /home/runner/work/docker-image-security-tools/docker-image-security-tools/security-artifacts/witness.dsse.json
+Error: signing ghcr.io/ricardo/docker-image-security-tools@sha256:7c0b300eafeb7c99eb83748e054395c63c4efea694da7189bcc2530e71a0cdf1: getting predicate reader: open /home/runner/work/docker-image-security-tools/docker-image-security-tools/security-artifacts/witness.dsse.json: no such file or directory
+error during command execution: signing ghcr.io/ricardo/docker-image-security-tools@sha256:7c0b300eafeb7c99eb83748e054395c63c4efea694da7189bcc2530e71a0cdf1: getting predicate reader: open /home/runner/work/docker-image-security-tools/docker-image-security-tools/security-artifacts/witness.dsse.json: no such file or directory
+Error: Process completed with exit code 1.
+
