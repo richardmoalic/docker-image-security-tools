@@ -8,250 +8,20 @@
   "statements": [
     {
       "vulnerability": {
-        "name": "CVE-2026-42499"
+        "name": "CVE-2024-45337"
       },
       "products": [
         {
           "@id": ""
         }
       ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The vulnerable net/mail package functions are part of unutilized base OS binaries and are never exposed to external or untrusted input."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42504"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The vulnerable mime header parsing code is contained within dormant system utilities and cannot be executed by the runtime application."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-42499" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The vulnerable net/mail package functions are part of unutilized base OS binaries and are never exposed to external or untrusted input."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-42504" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The vulnerable mime header parsing code is contained within dormant system utilities and cannot be executed by the runtime application."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-40200" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The musl libc vulnerability impacts stack allocation parameters not reachable or invoked by any active engine execution paths in this image."
-    },
-    {
-      "vulnerability": { "name": "CVE-2025-15558" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Docker CLI privilege escalation applies strictly to Windows plugin execution environments; this target runs in an isolated Linux runtime context."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-34040" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Moby daemon authorization bypass code is included via nested build dependencies but the daemon itself is not active or exposed inside this application footprint."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-34986" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "inline_mitigation_already_exist",
-      "impact_statement": "The go-jose DoS condition requires parsing specifically malformed JWE inputs; our payload engine strictly processes static signatures and discards nested encryption headers."
-    },
-    {
-      "vulnerability": { "name": "CVE-2025-30204" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "The excessive memory allocation vulnerability in golang-jwt is isolated to specific header parsing loops that are unmapped by our upstream dependencies."
-    },
-    {
-      "vulnerability": { "name": "CVE-2025-46569" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Open Policy Agent path injection vectors apply to exposed OPA server HTTP runtimes; this container does not instantiate or expose an OPA data server API."
-    },
-    {
-      "vulnerability": { "name": "CVE-2025-66506" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Fulcio OIDC token denial of service paths are not reachable since external attestation/token exchanges are completely disabled at runtime."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-49478" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Fulcio SSRF and ServiceAccount token leakage paths cannot be triggered as the runtime has no network routes to target cluster control planes."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-48702" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Rekor unbounded gzip decompression vectors are embedded within internal verification tooling and are not accessible to external runtime traffic."
-    },
-    {
-      "vulnerability": { "name": "CVE-2025-66564" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Sigstore Timestamp Authority DoS pathways are dormant; the container does not operate an active TSA logging service endpoint."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-24051" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "OpenTelemetry PATH hijacking exploits rely on local system binary injection; the runtime container execution context restricts environment path mutation."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39883" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "This OpenTelemetry execution vulnerability affects BSD and Solaris system boundaries only; this image deploys exclusively on a Linux base."
-    },
-    {
-      "vulnerability": { "name": "CVE-2024-45337" },
-      "products": [{ "@id": "" }],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
       "impact_statement": "The application binary does not launch or expose a custom Go-based SSH server listener, rendering PublicKeyCallback bypasses inapplicable."
     },
     {
-      "vulnerability": { "name": "CVE-2025-22869" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "SSH key exchange denial of service routes are unreachable because incoming SSH handshakes are blocked at the perimeter container boundary."
-    },
-    {
-      "vulnerability": { "name": "CVE-2025-47913" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "The container execution model does not initialize an internal SSH agent forwarder socket, making client panics impossible to trigger."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39828" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Command execution via discarded SSH permission frames relies on an exposed SSH server daemon, which is absent from this container footprint."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39829" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Denial of service through public key parameter exhaustion requires an interactive SSH authentication endpoint, which is not present."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39830" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Resource leaks from unsolicited SSH server responses cannot occur since the runtime does not establish outbound SSH client operations to remote hosts."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39831" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Security key bypass vectors depend on active hardware/FIDO user presence checks, which are omitted from automated headless image routines."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39832" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Improper key restriction filtering inside the SSH agent subsystem is isolated from the application's non-SSH operational pathing."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39835" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Denial of service via crafted SSH certificates requires an active SSH listener parsing incoming server or client keys, which is completely absent from this container's workload."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-42508" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "The knownhosts signature verification revocation bypass path is dead code since the application engine maintains no SSH known_hosts tracking configurations."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-46595" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Authorization bypass due to missing source-address checks applies exclusively to SSH server configurations utilizing critical-options constraints, which are not implemented here."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-46597" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "AES-GCM packet decoder denial of service requires processing active, encrypted SSH connection payloads over the wire, which is unmapped by the container configuration."
-    },
-    {
-      "vulnerability": { "name": "CVE-2024-45338" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Non-linear parsing risks in html elements are not triggered because the application does not accept, process, or render dynamic, user-supplied HTML inputs."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-25681" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Cross-site scripting pathways through HTML parsing are non-exploitable as the runtime lacks web delivery frontends or active domestic document parsing surfaces."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-27136" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "HTML parser alignment bypass vectors are unreachable; this container context does not route browser or third-party markup execution strings."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-33814" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "The internal HTTP/2 MAX_FRAME_SIZE frame denial of service vector requires an active HTTP/2 server server listener, which is disabled in this workload configuration."
-    },
-    {
-      "vulnerability": { "name": "CVE-2026-39821" },
-      "products": [{ "@id": "" }],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Privilege escalation via Punycode label processing paths in the IDNA subsystem are inactive since the runtime does not handle external internationalized domain translation chains."
-    },
-    {
       "vulnerability": {
-        "name": "CVE-2026-39821"
+        "name": "CVE-2024-45338"
       },
       "products": [
         {
@@ -259,8 +29,21 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The vulnerable golang.org/x/net/idna package is part of an unutilized dependency chain and is never exposed to external Punycode label processing inputs."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Non-linear parsing risks in html elements are not triggered because the application does not accept, process, or render dynamic, user-supplied HTML inputs."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-15558"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Docker CLI privilege escalation applies strictly to Windows plugin execution environments; this target runs in an isolated Linux runtime context."
     },
     {
       "vulnerability": {
@@ -277,7 +60,7 @@
     },
     {
       "vulnerability": {
-        "name": "CVE-2026-33186"
+        "name": "CVE-2025-22869"
       },
       "products": [
         {
@@ -285,12 +68,12 @@
         }
       ],
       "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The application does not use gRPC-Go authorization modules (google.golang.org/grpc/authz) for enforcing access control rules."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SSH key exchange denial of service routes are unreachable because incoming SSH handshakes are blocked at the perimeter container boundary."
     },
     {
       "vulnerability": {
-        "name": "CVE-2026-50151"
+        "name": "CVE-2025-30204"
       },
       "products": [
         {
@@ -298,12 +81,12 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The application utilizes oras-go strictly for local image formatting and does not trigger blob uploads handling untrusted Location redirect headers."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The excessive memory allocation vulnerability in golang-jwt is isolated to specific header parsing loops that are unmapped by our upstream dependencies."
     },
     {
       "vulnerability": {
-        "name": "CVE-2025-68121"
+        "name": "CVE-2025-46569"
       },
       "products": [
         {
@@ -311,8 +94,21 @@
         }
       ],
       "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "TLS session resumption is explicitly disabled in the crypto/tls configuration, negating the validation bypass vector."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Open Policy Agent path injection vectors apply to exposed OPA server HTTP runtimes; this container does not instantiate or expose an OPA data server API."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-47913"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The container execution model does not initialize an internal SSH agent forwarder socket, making client panics impossible to trigger."
     },
     {
       "vulnerability": {
@@ -342,6 +138,58 @@
     },
     {
       "vulnerability": {
+        "name": "CVE-2025-66506"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Fulcio OIDC token denial of service paths are not reachable since external attestation/token exchanges are completely disabled at runtime."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-66564"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Sigstore Timestamp Authority DoS pathways are dormant; the container does not operate an active TSA logging service endpoint."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-68121"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_already_exist",
+      "impact_statement": "TLS session resumption is explicitly disabled in the crypto/tls configuration, negating the validation bypass vector."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-24051"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "OpenTelemetry PATH hijacking exploits rely on local system binary injection; the runtime container execution context restricts environment path mutation."
+    },
+    {
+      "vulnerability": {
         "name": "CVE-2026-25679"
       },
       "products": [
@@ -352,6 +200,32 @@
       "status": "not_affected",
       "justification": "inline_mitigations_already_exist",
       "impact_statement": "The application handles only IPv4 environments and standard DNS hostnames within net/url; untrusted IPv6 literals are rejected explicitly."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-25681"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Cross-site scripting pathways through HTML parsing are non-exploitable as the runtime lacks web delivery frontends or active domestic document parsing surfaces."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-27136"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "HTML parser alignment bypass vectors are unreachable; this container context does not route browser or third-party markup execution strings."
     },
     {
       "vulnerability": {
@@ -407,6 +281,19 @@
     },
     {
       "vulnerability": {
+        "name": "CVE-2026-33186"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_already_exist",
+      "impact_statement": "The application does not use gRPC-Go authorization modules (google.golang.org/grpc/authz) for enforcing access control rules."
+    },
+    {
+      "vulnerability": {
         "name": "CVE-2026-33811"
       },
       "products": [
@@ -428,242 +315,8 @@
         }
       ],
       "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "HTTP/2 connections are restricted to authenticated internal traffic, and malformed frames are immediately dropped at the load balancer layer."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39820"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The application does not use the net/mail package to parse incoming email or message streams."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39822"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Filesystem tasks execute inside an isolated container running non-root privileges with an immutable rootfs, preventing directory traversal risks via os.Root."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39836"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The Go runtime security update flags paths unutilized by the DevSecOps CLI tool chain included in this Alpine image layout."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42499"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The net/mail package functions are part of unutilized Go standard library code inside the binaries and are never exposed to external or untrusted email inputs."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42504"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The MIME parsing code is not exposed to untrusted user inputs; the CLI utilities only parse secure internal configurations and trusted build artifacts."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-68121"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "TLS session resumption is not configured or utilized during downstream artifact signature verification actions performed by cosign or slsa-verifier."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61726"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Query string parsing inside net/url handles only verified OCI registry endpoint URLs configured via secure environment variables."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61729"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The image utilities do not evaluate or parse untrusted client X.509 certificates during local pipeline execution tasks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-25679"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The toolchain relies on standard hostname definitions and static registry targets; malicious IPv6 host literals cannot be injected into execution flags."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27145"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "Deep DNS certificate chain loops are blocked as the binaries only interact with trusted, top-level public registry endpoints."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32280"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Certificate authority parsing is restricted to the native Alpine ca-certificates bundle, neutralizing arbitrary certificate chain building attacks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32281"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Cosign and slsa-verifier execute rapid signature checking stacks against specific roots, limiting the validation depth footprint."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32283"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The CLI short-lived execution context mitigates persistent TLS 1.3 key renegotiation resource exhaustion paths."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33811"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "DNS lookups performed by scanner components are resolved through secure, upstream cluster or runner resolvers that drop malformed CNAME records."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33814"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "None of the packaged DevSecOps binaries expose an open HTTP/2 server framework inside the image runtime environment."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39820"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The net/mail stack is entirely unutilized inside the scanning tools, ensuring complete isolation from malicious input vectors."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39822"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The environment isolates file interactions to specific target directories via standard container boundary layer constraints."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-15558"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The environment operates exclusively within an Alpine Linux container structure; the Windows-specific Docker CLI plugin execution path is completely inactive and unreachable."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The internal HTTP/2 MAX_FRAME_SIZE frame denial of service vector requires an active HTTP/2 server server listener, which is disabled in this workload configuration."
     },
     {
       "vulnerability": {
@@ -675,723 +328,8 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tools utilize structural Docker client parsing libraries but do not host or run the vulnerable Moby daemon authorization engine."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-34986"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The packaged binaries process signatures and standard text-based metadata assertions rather than consuming complex, deeply nested JSON Web Encryption payloads."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-30204"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "JWT evaluation paths handle only trusted tokens issued by OIDC identity providers configured directly inside the secure CI runner ecosystem."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-46569"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The Open Policy Agent library is used purely for local policy parsing and execution; no long-lived OPA Data API HTTP server is exposed to untrusted routing environments."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-66506"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The image relies on static key validation or explicitly authenticated internal OIDC tokens, avoiding exposure to malicious, unauthenticated public Fulcio token endpoints."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-49478"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The DevSecOps tools run within a highly isolated sandbox layout where the Kubernetes service token path is restricted and network routing rules block unauthorized outbound lookups."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-48702"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The CLI tools act as clients querying remote log entries; they do not run a public Rekor log server handling untrusted, unbounded gzip decompression requests."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-66564"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The image embeds standard client verification modules and does not host or expose the Sigstore Timestamp Authority server engine."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-24051"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The OpenTelemetry Go SDK is compiled directly into local binary utilities executing inside an isolated container file system where the PATH environment variable is securely pinned."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39883"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The container environment executes exclusively on standard Linux runner infrastructures; the vulnerable BSD/Solaris-specific code paths are non-functional and un-compiled."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2024-45337"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The toolchain utilities act as outbound HTTPS/OCI network clients and do not initialize or host an SSH server context utilizing ServerConfig.PublicKeyCallback."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-22869"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The utilities communicate exclusively over trusted HTTPS and OCI registry protocols; they do not perform interactive or long-lived SSH Key Exchanges with untrusted hosts."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-47913"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The container executes automated static validation runs and does not mount, bind, or communicate with a running local SSH agent socket."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39828"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The image runs automated verification tasks without implementing or listening on an SSH daemon backend capable of handling user permissions."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39829"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The CLI workflow parses structured public cryptographic keys linked directly to verified OIDC identities rather than processing arbitrary public keys containing excessive structural parameters."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39830"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Network communication is strictly bounded by ephemeral client lifecycles; short-lived container runtimes terminate before any resource leak can impact system availability."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39831"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The target tools are automated runner applications verifying pre-existing cryptographic payload signatures and do not consume physical or interactive hardware security key checks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39832"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The tool suite bypasses SSH agent interactions completely, enforcing identity assurance solely through direct OCI registry layer validation."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39835"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The pipeline strictly processes standard Cosign/Fulcio signature bundles; it does not parse or evaluate complex SSH user or host certificates."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42508"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The execution path does not consume traditional `known_hosts` revocation lists for transport protection, relying instead on explicit TLS layers for endpoint authenticity."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46595"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The utilities do not evaluate or act on authorized_keys configurations or source-address validation rules typical of an SSH server entrypoint."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46597"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "All target network traffic relies on HTTP/2 or standard TLS network transport packets; the underlying SSH AES-GCM packet decoder pipeline remains unused."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39835"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The pipeline strictly processes standard Cosign/Fulcio signature bundles; it does not parse or evaluate complex SSH certificates."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42508"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The execution path does not consume traditional known_hosts revocation lists for transport protection, relying instead on explicit TLS layers for endpoint authenticity."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46595"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The utilities do not evaluate or act on authorized_keys configurations or source-address validation rules typical of an SSH server entrypoint."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46597"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "All target network traffic relies on HTTP/2 or standard TLS network transport packets; the underlying SSH AES-GCM packet decoder pipeline remains unused."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-47913"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The container executes automated static validation runs and does not mount, bind, or communicate with a running local SSH agent socket."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39828"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The image runs automated verification tasks without implementing or listening on an SSH daemon backend capable of handling user permissions."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39829"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The CLI workflow parses structured public cryptographic keys linked directly to verified OIDC identities rather than processing arbitrary public keys containing excessive structural parameters."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39830"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Network communication is strictly bounded by ephemeral client lifecycles; short-lived container runtimes terminate before any resource leak can impact system availability."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39831"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The target tools are automated runner applications verifying pre-existing cryptographic payload signatures and do not consume physical or interactive hardware security key checks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39832"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The tool suite bypasses SSH agent interactions completely, enforcing identity assurance solely through direct OCI registry layer validation."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2024-45338"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The embedded HTML parser parses local static scanner configurations and text reports; it does not process large, malicious, or non-linear web contents inside a browser context."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-25681"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The tools operate completely within headless, non-browser CLI backend pipelines where client-side Cross-Site Scripting (XSS) payload execution is impossible."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27136"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The tool utility processes internal structured JSON metadata payloads rather than serving or rendering complex external web pages vulnerable to HTML parsing bypasses."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33814"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The tools act exclusively as HTTP/2 clients making bounded outbound API requests to trusted endpoints; they do not expose a public HTTP/2 server framework to malformed frame streams."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39821"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Network operations are strictly directed at static, hardcoded internal OCI registries and public sigstore endpoints, rendering malicious Punycode domain-spoofing vectors inapplicable."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-22868"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The pipeline relies strictly on direct OIDC identity attestations and does not decode or process external, untrusted JWS signature blocks containing pathologically large token allocations."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33186"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The image runs automated client utilities evaluating code signatures; it does not host or expose a running gRPC authz interception or authorization validation server engine."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-50151"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Blob transport pushes are locked exclusively to single-tenant internal OCI registries; no multi-tenant cross-domain HTTP Location headers are encountered or evaluated."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-68121"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The ephemeral container runtime establishes standalone client handshakes and terminates without relying on persistent, long-lived TLS session resumption mechanisms."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61726"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The utilities communicate only with configured internal endpoints; they do not extract or evaluate arbitrary query strings containing excessive or malicious parameters."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61729"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The client verification stack processes a trusted, predefined root certificate chain rather than parsing deeply nested or pathologically complex untrusted public x509 structures."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-25679"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Pipeline routing uses fixed IPv4 endpoints and standard DNS domain references, avoiding parsing loops associated with raw IPv6 host literal configurations."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27145"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Endpoint identity matching is limited to the specific target registry domain, bypassing deep processing routines for highly distributed x509 Subject Alternative Name DNS constraints."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32280"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Certificate verification operates against explicit local anchor trust files, neutralizing complexity vulnerabilities in dynamic, open-ended x509 path building."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32281"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Signature validation runs against single-tier image signatures rather than traversing unvetted, multi-layered intermediate certificate hierarchies."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32283"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Outbound transport configurations do not renegotiate or cycle key updates within the short execution window of a single image validation check."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33811"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "DNS resolution routes through the host container network layer, shielding the internal runtime from direct exposure to custom, malformed CNAME payload targets."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39820"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The suite handles structured manifest schemas and binary data packages; it contains no execution paths that parse email payloads or interact with the net/mail package."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39822"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "File system reads are tightly restricted to isolated build directory parameters; the tools do not operate on unvetted directory structures containing nested symlinks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39836"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The base runtime layer is protected by standard kernel container controls, preventing the exploitation of lower-level Go system calls inside the workspace."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42499"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tool workflows lack any interaction with mailbox streams or user parsing modules, rendering email address format evaluation paths inactive."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42504"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The utilities evaluate strict application/json and application/vnd.oci data types; they do not process multi-part or nested web-based MIME headers."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33814"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The pipeline strictly connects outward to authorized OCI container registries over standard HTTP/2 transport; it does not process untrusted inbound SETTINGS frames or operate as a public server endpoint."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-15558"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The pipeline operates entirely within an isolated Linux container context, eliminating the risk exposure vector for Windows-specific Docker CLI plugin execution paths."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Moby daemon authorization bypass code is included via nested build dependencies but the daemon itself is not active or exposed inside this application footprint."
     },
     {
       "vulnerability": {
@@ -1408,7 +346,33 @@
     },
     {
       "vulnerability": {
-        "name": "CVE-2025-30204"
+        "name": "CVE-2026-39820"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "component_not_present",
+      "impact_statement": "The application does not use the net/mail package to parse incoming email or message streams."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39821"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Privilege escalation via Punycode label processing paths in the IDNA subsystem are inactive since the runtime does not handle external internationalized domain translation chains."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39822"
       },
       "products": [
         {
@@ -1417,11 +381,89 @@
       ],
       "status": "not_affected",
       "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The signature validation runtime parses verified OIDC identity claims directly issued by explicit cloud provider discovery nodes, ensuring no processing of pathologically bloated public identity tokens."
+      "impact_statement": "Filesystem tasks execute inside an isolated container running non-root privileges with an immutable rootfs, preventing directory traversal risks via os.Root."
     },
     {
       "vulnerability": {
-        "name": "CVE-2025-46569"
+        "name": "CVE-2026-39828"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Command execution via discarded SSH permission frames relies on an exposed SSH server daemon, which is absent from this container footprint."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39829"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Denial of service through public key parameter exhaustion requires an interactive SSH authentication endpoint, which is not present."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39830"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Resource leaks from unsolicited SSH server responses cannot occur since the runtime does not establish outbound SSH client operations to remote hosts."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39831"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Security key bypass vectors depend on active hardware/FIDO user presence checks, which are omitted from automated headless image routines."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39832"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Improper key restriction filtering inside the SSH agent subsystem is isolated from the application's non-SSH operational pathing."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39835"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Denial of service via crafted SSH certificates requires an active SSH listener parsing incoming server or client keys, which is completely absent from this container's workload."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-39836"
       },
       "products": [
         {
@@ -1430,72 +472,7 @@
       ],
       "status": "not_affected",
       "justification": "component_not_present",
-      "impact_statement": "Cosign invokes specific static policy verification checks internally. It does not spin up or expose an open, running Open Policy Agent (OPA) server engine or Data API HTTP route to the network."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-66506"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The environment executes Cosign as a client tool; it does not compile, expose, or run the Fulcio certificate authority server engine or its OIDC token reception layer."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-49478"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The container executes single-purpose CLI verification routines and does not operate the Fulcio server subsystem prone to Kubernetes ServiceAccount token extraction or SSRF."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-48702"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The pipeline runs client-side signature attestation steps; it does not host the Rekor transparency log server engine or ingest raw, untrusted gzip payload flows."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-66564"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The utility queries trusted public or designated internal timestamp targets; it does not stand up a Sigstore Timestamp Authority serving endpoint vulnerable to inbound OID/Content-Type DoS vectors."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-24051"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The ephemeral task operates within a strictly secured, non-shared container runtime context with a fixed, immutable PATH setting, preventing local executable hijacking."
+      "impact_statement": "The Go runtime security update flags paths unutilized by the DevSecOps CLI tool chain included in this Alpine image layout."
     },
     {
       "vulnerability": {
@@ -1507,12 +484,12 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The environment executes inside an isolated Linux container namespace; no execution or path parsing occurs on target platforms like BSD or Solaris."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "This OpenTelemetry execution vulnerability affects BSD and Solaris system boundaries only; this image deploys exclusively on a Linux base."
     },
     {
       "vulnerability": {
-        "name": "CVE-2024-45337"
+        "name": "CVE-2026-40200"
       },
       "products": [
         {
@@ -1521,410 +498,7 @@
       ],
       "status": "not_affected",
       "justification": "component_not_present",
-      "impact_statement": "Cosign logic relies on HTTPS, OCI, and OIDC transport protocols; it does not initialize or expose an SSH server instance utilizing the x/crypto/ssh ServerConfig callbacks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-22869"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The verification pipeline uses standard Web PKI/OIDC handshakes and lacks execution loops that instantiate or process interactive SSH key exchange streams."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-47913"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The automated image validation layer operates without structural dependencies on external or local SSH agent forwarding connections."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39828"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The application profile does not deploy or maintain an interactive SSH service layer, neutralizing vectors involving channel permission states."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39829"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tool parses standard container manifests and cosign layers; it does not process or evaluate incoming, unvetted SSH public key objects or parameters."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39830"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The short-lived verification workflow opens no persistent listener sockets or unvetted interactive SSH client connections."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39831"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The pipeline is fully automated and headless, using identity tokens and cryptographic public keys without physical security key user-presence check pathways."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39832"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "No interactive SSH agent communication loops exist within the isolated runner context, avoiding key constraint evaluation flaws."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39835"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The system validates container signatures via standard OCI descriptors and x509 layers, completely bypassing the parsing of OpenSSH-formatted certificate structures."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42508"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The environment relies on isolated OCI registry connections rather than parsing or enforcing standard SSH known_hosts file records."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46595"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The application lacks an interactive SSH operational mode, neutralizing bypass vectors linked to source-address constraint checks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46597"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The container handles pure OCI manifest data blocks and does not decode untrusted low-level AES-GCM binary network packet buffers via SSH transport."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2024-45338"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tool environment does not parse or evaluate arbitrary web-facing HTML structures or text streams using the x/net/html parsing framework."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-25681"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The container utility processes structured data schemas and images; it does not render web payloads or interact with DOM-based HTML sanitization modules."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27136"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The runtime context handles API interactions and signatures, avoiding web rendering surfaces or browser-directed HTML interpretation entirely."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33814"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The network layer makes outbound connections to known OCI registries and target endpoints, ensuring it never processes malicious inbound HTTP/2 SETTINGS frame sizes as a server."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39821"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "DNS resolution and domain target configuration rely on explicit, unvetted static string matches rather than dynamically parsing untrusted internationalized Punycode labels."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-22868"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The token acquisition flow validates strict OIDC responses from a predefined identity provider without evaluating massive or pathologically structured JWS metadata layers."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33186"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tool operates strictly as an outbound validation client; it does not implement, run, or expose a gRPC authz interception or token gate check endpoint."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-68121"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The pipeline toolchain performs direct, short-lived API requests to specific, trusted container registries and identity providers without utilizing long-lived TLS session resumption configurations."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61726"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The tools process explicitly targeted OCI manifest URLs and well-formed token endpoints; they do not parse complex, untrusted, or user-controlled URL query parameter structures."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61729"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The validation process relies on trusted OIDC root configurations and explicit registry certificates, avoiding the parsing of arbitrary, pathologically structured public x509 certificate chains."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-25679"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The network environment targets specific, well-defined registry domains and does not evaluate or parse untrusted, raw IPv6 host literals within its execution paths."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27145"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The task relies on static internal certificates or verified public signature keys; it does not parse complex public x509 SAN extensions or process unbounded loops during chain building."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32280"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The utility interacts exclusively with designated upstream keys and registries, ensuring no exposure to deeply nested or malicious certificate chains designed to consume host memory."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32281"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The verification runner evaluates a tight, controlled set of signature paths without traversing massive, unvetted public certificate trust graphs."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32283"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The automation tool handles short outbound TLS 1.3 handshakes to trusted endpoints and does not host a server listener vulnerable to high-frequency key update streams."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33811"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "DNS resolution within the ephemeral pipeline runner relies on standard, protected cloud infrastructure resolvers that mitigate malicious or endless CNAME loop structures."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33814"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The client establishes outbound connections to known OCI registries and does not act as an HTTP/2 server processing inbound SETTINGS frames."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39820"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The CLI tools are built for cryptographic supply chain validation and contain no logic that imports, evaluates, or parses RFC 5322 email text components."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39822"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The environment processes OCI layers inside structured container layers and does not rely on os.Root sandbox utilities to process untrusted local directory symlink traversals."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39836"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The compilation target and standard library symbols are restricted to execution within a hardcoded Linux container, eliminating vectors linked to platform-specific environment handling."
+      "impact_statement": "The musl libc vulnerability impacts stack allocation parameters not reachable or invoked by any active engine execution paths in this image."
     },
     {
       "vulnerability": {
@@ -1937,7 +511,7 @@
       ],
       "status": "not_affected",
       "justification": "component_not_present",
-      "impact_statement": "The verification pipeline checks structured JSON attestation logs and container tags, bypassing email address text parsing features completely."
+      "impact_statement": "The vulnerable net/mail package functions are part of unutilized base OS binaries and are never exposed to external or untrusted input.The tool workflows lack any interaction with mailbox streams or user parsing modules, rendering email address format evaluation paths inactive."
     },
     {
       "vulnerability": {
@@ -1949,51 +523,12 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The toolchain interacts via regular JSON payload APIs and OCI descriptor blobs without evaluating or decomposing raw, multipart MIME header networks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-34040"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tool acts as a scanning client utility (e.g., Grype/OSV-Scanner) evaluating target artifacts; it does not launch or expose a persistent Moby/Docker daemon API surface or handle authorization authorization-bypass plugins."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-15558"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The target binary runs exclusively within an isolated, headless Linux container ecosystem, neutralizing privilege escalation models specific to Windows named pipe structures or Windows plugin layouts."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-34986"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
       "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The pipeline strictly processes standard, lightweight OIDC identity tokens (JWS) during authentication steps and does not digest, parse, or decode complex, untrusted JSON Web Encryption (JWE) streams."
+      "impact_statement": "The utilities evaluate strict application/json and application/vnd.oci data types; they do not process multi-part or nested web-based MIME headers."
     },
     {
       "vulnerability": {
-        "name": "CVE-2025-66506"
+        "name": "CVE-2026-42508"
       },
       "products": [
         {
@@ -2001,12 +536,12 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The environment runs slsa-verifier as a short-lived client utility; it does not host or run the Fulcio certificate authority server subsystem or accept raw inbound OIDC token verification network endpoints."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The knownhosts signature verification revocation bypass path is dead code since the application engine maintains no SSH known_hosts tracking configurations."
     },
     {
       "vulnerability": {
-        "name": "CVE-2026-49478"
+        "name": "CVE-2026-46595"
       },
       "products": [
         {
@@ -2014,8 +549,21 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The execution environment processes local configuration parameters and cryptographic claims, bypassing server-side token token-exchange architectures entirely."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Authorization bypass due to missing source-address checks applies exclusively to SSH server configurations utilizing critical-options constraints, which are not implemented here."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-46597"
+      },
+      "products": [
+        {
+          "@id": ""
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "AES-GCM packet decoder denial of service requires processing active, encrypted SSH connection payloads over the wire, which is unmapped by the container configuration."
     },
     {
       "vulnerability": {
@@ -2027,12 +575,12 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The runtime context operates strictly as a CLI artifact validation engine; it does not maintain an active, long-lived Rekor transparency log server pipeline processing untrusted archive streams."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Rekor unbounded gzip decompression vectors are embedded within internal verification tooling and are not accessible to external runtime traffic."
     },
     {
       "vulnerability": {
-        "name": "CVE-2025-66564"
+        "name": "CVE-2026-49478"
       },
       "products": [
         {
@@ -2040,398 +588,8 @@
         }
       ],
       "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The binary validates existing signature structures against trusted public targets and does not host a standalone Timestamp Authority API engine handling inbound raw ASN.1 payloads."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-47913"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The short-lived verification task handles identity parameters locally and does not configure or connect to an interactive SSH agent service loop."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39828"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The application stack functions as a headless client checker for container structures and contains no logic establishing interactive SSH transport layers."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39829"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The validation process handles standard container metadata formats rather than processing, expanding, or parsing incoming SSH public key credential parameters."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39830"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The runner process operates in an ephemeral workflow executing short-lived outbound HTTPS queries, avoiding unvetted SSH channel allocations."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39831"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "No interactive physical security token pathways or hardware authentication interfaces are engaged during the automated headless run."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39832"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The container utility utilizes static key variables or short-lived environment secrets, completely independent of local SSH agent constraints."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39835"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "Signature parsing logic evaluates standard x509 structures and Cosign layers, avoiding the parsing of custom OpenSSH binary certificate files."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42508"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The validation system evaluates standard OCI manifests and does not parse, store, or query legacy SSH known_hosts tracking records."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46595"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The operational footprint contains no SSH server access gates, making source-address rule evaluation bugs entirely unreachable."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-46597"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The container handles structured container configurations and JSON payloads, completely avoiding raw SSH transport stream parsing."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-25681"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tool reads structured image manifest schemas; it does not interpret, process, or render arbitrary HTML formats or support active execution sandboxes."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27136"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The CLI relies exclusively on structured binary artifact parsing and handles no interactive DOM or HTML layout logic."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33814"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The application client queries designated registries over HTTPS; it functions strictly as a client and never acts as an HTTP/2 server evaluating inbound SETTINGS frame parameters."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39821"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "All domain routing and OCI registry configuration targets are processed as explicit, unvetted static ASCII labels without processing arbitrary Punycode parameters."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33186"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The tool suite acts exclusively as an outbound network verification client and does not implement or configure an active gRPC authz gate listener."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-68121"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The tool chain initiates direct, transient validation queries to targets without implementing long-term TLS session resumption caching pathways."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61726"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The execution path accesses clean, fixed API targets and does not ingest or recursively evaluate complex, user-supplied URL query loops."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-61729"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The validation workflow runs against a narrow, controlled collection of authority roots and does not parse arbitrary public x509 chain configurations."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-25679"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "Target connections are restricted to explicit DNS domains, completely bypassing the parsing or handling of complex IPv6 host string literals."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27145"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The environment uses trusted key records and lacks logic that iterates through deeply nested or malicious public certificate DNS SAN fields."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32280"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The artifact scanning pipeline addresses hardcoded registry surfaces, precluding execution pathways from validating expansive, unvetted trust webs."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32281"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The verification target evaluates a rigid set of explicit signature blocks, preventing massive graph traversal computations."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-32283"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The validation runner acts exclusively as a short-lived network client and does not maintain persistent server channels processing high-frequency TLS 1.3 key renegotiations."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-33811"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "DNS resolution paths are restricted to standard, protective cloud infrastructure resolvers that mitigate malicious or long CNAME response vectors."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39820"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The ephemeral verification toolchain processes OCI image layers and manifests; it contains no execution paths that ingest, parse, or routing incoming untrusted raw email message payloads or net/mail blocks."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39822"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The pipeline environment strictly operates on read-only, securely isolated OCI layer archives and fixed container definitions inside isolated worker nodes, avoiding interactions with untrusted arbitrary local symlink structures."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-39836"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The validation runner acts exclusively as a short-lived client execution step under secure environment runtime configurations, isolating the base execution blocks from external ambient runtime manipulation."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42499"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The utility parses structural engineering telemetry data and metadata declarations, completely bypassing net/mail handling pipelines and pathological email address input loops."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-42504"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The container utility targets binary layout analysis rather than acting as a multi-part mail or web content provider processing incoming untrusted MIME message formats."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-27145"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The cryptographic trust boundaries are anchored strictly around highly constrained, known signing identities rather than executing deep, unvetted public certificate chain traversals processing complex SAN fields."
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Fulcio SSRF and ServiceAccount token leakage paths cannot be triggered as the runtime has no network routes to target cluster control planes."
     },
     {
       "vulnerability": {
@@ -2443,190 +601,8 @@
         }
       ],
       "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The artifact interactions target internal, explicit OCI registry endpoints utilizing static authentication properties, preventing context leakage via arbitrary external redirection headers."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-15558"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
       "justification": "component_not_present",
-      "impact_statement": "The container workflow executes strictly within a Linux container abstraction layer (WSL/OCI runtime environment) and contains no logic loading or evaluating legacy Windows execution plugin paths."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2026-34986"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The image runtime processes predictable, structural token validation properties in a short-lived client execution model, preventing high-overhead JSON Web Encryption decompression processing loops."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-30204"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "inline_mitigations_already_exist",
-      "impact_statement": "The application consumes explicit, tightly bounded internal tokens, meaning it is not exposed to unbounded memory allocations from large or malicious header strings."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2024-45337"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The engine operates entirely via standard outbound TLS and programmatic API validation, bypassing the configuration or exposure of an interactive SSH server layer or callback mechanism."
-    },
-    {
-      "vulnerability": {
-        "name": "CVE-2025-22869"
-      },
-      "products": [
-        {
-          "@id": ""
-        }
-      ],
-      "status": "not_affected",
-      "justification": "component_not_present",
-      "impact_statement": "The validation process handles structured static container payload components, precluding interaction with active SSH transport keys or negotiation phase mechanisms."
-    },
-    {
-    "vulnerability": {
-      "name": "CVE-2026-39830"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "The utility acts strictly as an ephemeral CLI scanner executing short-lived outbound queries; it does not establish persistent or interactive inbound SSH server channels vulnerable to resource exhaustion loops."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2026-39831"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "The containerized environment operates as an automated headless checker, completely bypassing hardware security tokens and interactive physical user presence interfaces."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2026-39832"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "The pipeline execution leverages direct environment variable mappings or static key handles rather than routing traffic through an external or untrusted localized SSH agent daemon."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2026-39835"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "Cryptographic validation workflows are scoped exclusively to OCI container layers and Cosign x509 structures, completely bypassing custom OpenSSH binary certificate parsing targets."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2026-42508"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "The execution environment processes public container registry targets via HTTPS and contains no configuration or logic maps interacting with legacy SSH known_hosts tracking records."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2026-46595"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "The application lacks an integrated SSH listener surface, rendering logic flaws inside source-address policy authorization mechanisms completely unreachable."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2026-46597"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "The tool reads structured image manifest JSON inputs rather than decoding raw, untrusted binary SSH packets or custom transport layer blocks."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2024-45338"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "component_not_present",
-    "impact_statement": "The binary toolchain acts as a headless checker for OCI formats and manifests; it contains no runtime components that parse, process, or render arbitrary HTML layouts."
-  },
-  {
-    "vulnerability": {
-      "name": "CVE-2025-22868"
-    },
-    "products": [
-      {
-        "@id": ""
-      }
-    ],
-    "status": "not_affected",
-    "justification": "inline_mitigations_already_exist",
-    "impact_statement": "Token parsing logic evaluates a highly constrained, predictable set of internal signing tokens, neutralizing potential memory exhaustion conditions from large or untrusted JWS signatures."
-  }
+      "impact_statement": "The application utilizes oras-go strictly for local image formatting and does not trigger blob uploads handling untrusted Location redirect headers."
+    }
   ]
 }

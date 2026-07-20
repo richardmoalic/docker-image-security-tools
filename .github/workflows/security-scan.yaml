@@ -22,6 +22,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  #v7.0.0
 
+      - name: Initialize Cache Directories
+        run: mkdir -p ~/.cache/trivy ~/.cache/grype
+
       # Set up caching for vulnerability databases
       - name: Cache Vulnerability Databases
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #6.1.0
@@ -60,7 +63,7 @@ jobs:
             -v ~/.cache/grype:/root/.cache/grype \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/grype \
-            sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o json > ${{ github.workspace }}/artifacts/grype.json
+            sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o json > ${{ github.workspace }}/security-artifacts/grype.json
 
       - name: Run Grype Sarif Report
         run: |
@@ -68,7 +71,7 @@ jobs:
             -v ~/.cache/grype:/root/.cache/grype \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/grype \
-            sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o sarif > ${{ github.workspace }}/artifacts/grype.sarif
+            sec-tools:local sbom:/host-artifacts/sbom.spdx.json -o sarif > ${{ github.workspace }}/security-artifacts/grype.sarif
 
       # Run Trivy Scan
       - name: Run Trivy Vulnerability Scan
@@ -93,12 +96,12 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/artifacts:/host-artifacts \
             --entrypoint /usr/local/bin/osv-scanner \
-            sec-tools:local --sbom /host-artifacts/sbom.spdx.json --format json > ${{ github.workspace }}/artifacts/osv.json || true
+            sec-tools:local --sbom /host-artifacts/sbom.spdx.json --format json > ${{ github.workspace }}/security-artifacts/osv.json
 
       - name: Extract Product PURL
         id: product
         run: |
-          PURL=$(jq -r '.metadata.component.purl // empty' "${{ github.workspace }}/artifacts/sbom.cdx.json")
+          PURL=$(jq -r '.metadata.component.purl // empty' "${{ github.workspace }}/build-artifacts/sbom.cdx.json")
 
           if [ -z "$PURL" ] || [ "$PURL" = "null" ]; then
             echo "⚠️ PURL not found in SBOM metadata. Building clean fallback..."
@@ -121,7 +124,7 @@ jobs:
             )
             ' \
             security/policy/vex-policy.json \
-            > "${{ github.workspace }}/artifacts/vex.json"
+            > "${{ github.workspace }}/security-artifacts/vex.json"
 
 
       # Apply VEX Filtering
@@ -133,7 +136,7 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/trivy.sarif \
               /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/trivy-filtered.sarif
+              > ${{ github.workspace }}/security-artifacts/trivy-filtered.sarif
               
 
       - name: Filter Grype Results with VEX
@@ -144,7 +147,7 @@ jobs:
             sec-tools:local filter \
               /host-artifacts/grype.sarif \
               /host-artifacts/vex.json \
-              > ${{ github.workspace }}/artifacts/grype-filtered.sarif
+              > ${{ github.workspace }}/security-artifacts/grype-filtered.sarif
 
 
       - name: Verify Filtered Security Gates
@@ -152,10 +155,10 @@ jobs:
           echo "### Security Compliance Metadata" >> $GITHUB_STEP_SUMMARY
           echo "Evaluating remaining vulnerabilities after VEX statements applied..."
           
-          TRIVY_BEFORE=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/artifacts/trivy.sarif 2>/dev/null || echo "0")
-          TRIVY_AFTER=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/artifacts/trivy-filtered.sarif 2>/dev/null || echo "0")
-          GRYPE_BEFORE=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/artifacts/grype.sarif 2>/dev/null || echo "0")
-          GRYPE_AFTER=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/artifacts/grype-filtered.sarif 2>/dev/null || echo "0")
+          TRIVY_BEFORE=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/trivy.sarif 2>/dev/null || echo "0")
+          TRIVY_AFTER=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/trivy-filtered.sarif 2>/dev/null || echo "0")
+          GRYPE_BEFORE=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/grype.sarif 2>/dev/null || echo "0")
+          GRYPE_AFTER=$(jq '[.runs[].results[]] | length' ${{ github.workspace }}/security-artifacts/grype-filtered.sarif 2>/dev/null || echo "0")
           
           echo "#### Scanner Metrics" >> $GITHUB_STEP_SUMMARY
           echo "| Engine | Findings Before VEX | Findings After VEX |" >> $GITHUB_STEP_SUMMARY
@@ -179,11 +182,11 @@ jobs:
           sudo mv witness /usr/local/bin/
 
       # Generate Process Attestation (Witness)
-      - name: Generate Process Attestation (Witness)
+      - name: Generate Security Scan Step Attestation (Witness)
         run: |
           witness run \
-            --step build \
-            --outfile "${{ github.workspace }}/artifacts/witness.dsse.json" \
+            --step security-scan \
+            --outfile "${{ github.workspace }}/security-artifacts/witness-security-scan.dsse.json" \
             --signer-fulcio-url https://fulcio.sigstore.dev \
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
@@ -199,10 +202,32 @@ jobs:
           sha256sum *.{json,sarif} > checksums.txt
           shopt -u nullglob
 
-      # Upload all resulting artifacts to the workflow run
+      - name: Generate Checksums Predicate
+        run: |
+          cd ${{ github.workspace }}/artifacts
+          
+          shopt -s nullglob
+          sha256sum *.{json,sarif} | jq -R -s --arg ver "${{ inputs.version }}" '
+            split("\n") | map(select(length > 0) | split("  ")) | map({(.[1]): .[0]}) | add
+            | { version: $ver, artifacts: . }
+          ' > checksums.json
+          shopt -u nullglob
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@d8b3cd6632491afc8f196c55b178864f5b957fd7 # v3.8.1
+
+
+      - name: Sign Checksums File
+        run: |
+          cosign sign-blob \
+            --yes \
+            --output-signature "${{ github.workspace }}/security-artifacts/checksums.txt.sigstore" \
+            "${{ github.workspace }}/artifacts/checksums.txt"
+
+
       - name: Upload Security Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: security-artifacts
-          path: ${{ github.workspace }}/artifacts/
+          path: ${{ github.workspace }}/security-artifacts/
           retention-days: 5

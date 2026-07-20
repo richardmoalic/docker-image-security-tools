@@ -86,6 +86,8 @@ jobs:
           files: |
             manifest.json
             ./artifacts/checksums.txt
+            ./artifacts/checksums.json
+            ./artifacts/checksums.txt.sigstore
             ./artifacts/sbom.spdx.json
             ./artifacts/sbom.cdx.json
             ./artifacts/grype-filtered.sarif
@@ -95,3 +97,43 @@ jobs:
             ./artifacts/osv.json
             ./artifacts/vex.json
             ./artifacts/witness.dsse.json
+
+      - name: Install Witness
+        env:
+          WITNESS_VERSION: v0.12.0
+        run: |
+          curl -fsSL \
+            -o witness.tar.gz \
+            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+
+          tar -xzf witness.tar.gz
+          chmod +x witness
+          sudo mv witness /usr/local/bin/
+
+      - name: Generate Publish Step Attestation (Witness)
+        run: |
+          witness run \
+            --step publish \
+            --outfile "${{ github.workspace }}/publish-artifacts/witness-verify.dsse.json" \
+            --signer-fulcio-url https://fulcio.sigstore.dev \
+            --signer-fulcio-oidc-client-id sigstore \
+            --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
+            --timestamp-servers https://freetsa.org/tsr \
+            -- true
+
+      - name: Verify Policy
+        run: |
+          witness verify-policy \
+              --policy security/policy/in-toto.signed.json
+
+      - name: Verify Witness Attestations Against Policy
+        run: |
+          witness verify \
+          --policy security/policy/in-toto.signed.json \
+          --attestation publish-artifacts/witness-publish.dsse.json
+
+      - name: Upload Publisg Artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        with:
+          name: publish-artifacts
+          path: ${{ github.workspace }}/publish-artifacts/

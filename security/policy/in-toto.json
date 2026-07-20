@@ -1,0 +1,63 @@
+{
+  "expires": "2028-01-01T00:00:00Z",
+  "steps": {
+    "build": {
+      "name": "build",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestation/v0.1"
+        }
+      ],
+      "artifactrules": [
+        "CREATE build-artifacts/"
+      ]
+    },
+    "security-scan": {
+      "name": "security-scan",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestation/v0.1"
+        }
+      ],
+      "artifactrules": [
+        "MATCH build-artifacts/*",
+        "CREATE security-artifacts/"
+      ]
+    },
+    "attest": {
+      "name": "attest",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestation/v0.1"
+        }
+      ],
+      "artifactrules": [
+        " MATCH security-artifacts/*",
+        "CREATE attest-artifacts/"
+      ]
+    },
+    "verify": {
+      "name": "verify",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestation/v0.1"
+        }
+      ],
+      "artifactrules": [
+        "MATCH attest-artifacts/*",
+        "CREATE verify-artifacts/"
+      ]
+    },
+    "publish": {
+      "name": "publish",
+      "attestations": [
+        {
+          "type": "https://witness.dev/attestation/v0.1"
+        }
+      ],
+      "artifactrules": [
+        "MATCH verify-artifacts/*"
+    ]
+    }
+  }
+}

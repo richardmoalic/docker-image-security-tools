@@ -23,6 +23,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify checksums
+        run: |
+          sha256sum -c security-artifacts/checksums.txt
+
       - name: Install Cosign
         uses: sigstore/cosign-installer@ba7bc0a3fef59531c69a25acd34668d6d3fe6f22 #v4.1.0
 
@@ -40,4 +44,46 @@ jobs:
           gh attestation verify "oci://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ inputs.image_digest }}" \
             --owner "${{ github.repository_owner }}"
 
+      - name: Install Witness
+        env:
+          WITNESS_VERSION: v0.12.0
+        run: |
+          curl -fsSL \
+            -o witness.tar.gz \
+            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+
+          tar -xzf witness.tar.gz
+          chmod +x witness
+          sudo mv witness /usr/local/bin/
+
+      - name: Generate Verify Step Attestation (Witness)
+        run: |
+          witness run \
+            --step verify \
+            --outfile "${{ github.workspace }}/verify-artifacts/witness-verify.dsse.json" \
+            --signer-fulcio-url https://fulcio.sigstore.dev \
+            --signer-fulcio-oidc-client-id sigstore \
+            --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
+            --timestamp-servers https://freetsa.org/tsr \
+            -- true
+
+      - name: Verify Policy
+        run: |
+          witness verify-policy \
+              --policy security/policy/in-toto.signed.json
+
+      - name: Verify Witness Attestations Against Policy
+        run: |
+          witness verify \
+          --policy security/policy/in-toto.signed.json \
+          --attestation build-artifacts/witness-build.dsse.json \
+          --attestation security-artifacts/witness-security-scan.dsse.json \
+          --attestation attest-artifacts/witness-attest.dsse.json \
+          --attestation verify-artifacts/witness-verify.dsse.json
+
+      - name: Upload verify Artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        with:
+          name: verify-artifacts
+          path: ${{ github.workspace }}/verify-artifacts/
     

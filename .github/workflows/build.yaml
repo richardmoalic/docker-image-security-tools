@@ -77,8 +77,31 @@ jobs:
           outputs: type=local,dest=artifacts
           cache-from: type=gha
 
-      - name: Upload Base Artifacts
+      - name: Install Witness
+        env:
+          WITNESS_VERSION: v0.12.0
+        run: |
+          curl -fsSL \
+            -o witness.tar.gz \
+            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+
+          tar -xzf witness.tar.gz
+          chmod +x witness
+          sudo mv witness /usr/local/bin/
+
+      - name: Generate Build Step Attestation (Witness)
+        run: |
+          witness run \
+            --step build \
+            --outfile "${{ github.workspace }}/build-artifacts/witness-build.dsse.json" \
+            --signer-fulcio-url https://fulcio.sigstore.dev \
+            --signer-fulcio-oidc-client-id sigstore \
+            --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
+            --timestamp-servers https://freetsa.org/tsr \
+            -- true
+
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
-          name: raw-build-metadata
-          path: artifacts/
+          name: build-artifacts
+          path: ${{ github.workspace }}/build-artifacts/

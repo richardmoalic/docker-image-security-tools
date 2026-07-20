@@ -59,6 +59,9 @@ jobs:
 
       - name: Attach Witness Attestation
         run: cosign attest --yes --predicate artifacts/witness.dsse.json --type https://witness.dev/attestation/v0.1 "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}"
+      
+      - name: Attach Checksums Attestation
+        run: cosign attest --yes --predicate artifacts/checksums.json --type https://in-toto.io/Statement/v0.1
 
       - name: Generate SLSA Provenance
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 #v4.1.1
@@ -68,9 +71,39 @@ jobs:
           push-to-registry: true
 
       - name: Generate GitHub SBOM Attestation
-        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e #v4.1.0
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 #v4.2.0
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE }}
           subject-digest: ${{ inputs.image_digest }}
-          sbom-path: artifacts/sbom.spdx.json
+          predicate-type: https://spdx.dev/Document
+          predicate-path: artifacts/sbom.spdx.json
           push-to-registry: true
+
+      - name: Install Witness
+        env:
+          WITNESS_VERSION: v0.12.0
+        run: |
+          curl -fsSL \
+            -o witness.tar.gz \
+            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+
+          tar -xzf witness.tar.gz
+          chmod +x witness
+          sudo mv witness /usr/local/bin/
+
+      - name: Generate Attest Step Attestation (Witness)
+        run: |
+          witness run \
+            --step attest \
+            --outfile "${{ github.workspace }}/attest-artifacts/witness-attest.dsse.json" \
+            --signer-fulcio-url https://fulcio.sigstore.dev \
+            --signer-fulcio-oidc-client-id sigstore \
+            --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
+            --timestamp-servers https://freetsa.org/tsr \
+            -- true
+
+      - name: Upload attest Artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        with:
+          name: attest-artifacts
+          path: ${{ github.workspace }}/attest-artifacts/

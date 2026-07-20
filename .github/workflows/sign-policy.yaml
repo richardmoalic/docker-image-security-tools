@@ -1,0 +1,79 @@
+name: Sign In-Toto Policy Manual Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      policy_path:
+        description: "Path to unsigned policy file"
+        required: true
+        default: "security/policy/in-toto.json"
+      output_path:
+        description: "Destination path for signed policy"
+        required: true
+        default: "security/policy/in-toto.signed.json"
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  sign-policy:
+    name: Sign & Update In-Toto Layout Policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  #v7.0.0
+
+      - name: Install Witness
+        env:
+          WITNESS_VERSION: v0.12.0
+        run: |
+          curl -fsSL \
+            -o witness.tar.gz \
+            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
+          tar -xzf witness.tar.gz
+          chmod +x witness
+          sudo mv witness /usr/local/bin/
+
+      - name: Sign Policy
+        env:
+          WITNESS_POLICY_KEY: ${{ secrets.WITNESS_POLICY_PRIVATE_KEY }}
+        run: |
+          # Load private key from GitHub secret into temporary file securely
+          echo "$WITNESS_POLICY_KEY" > /tmp/policy-signer-key.pem
+          chmod 600 /tmp/policy-signer-key.pem
+
+          # Execute Witness policy signing
+          witness sign \
+            --key /tmp/policy-signer-key.pem \
+            --infile "${{ github.event.inputs.policy_path }}" \
+            --outfile "${{ github.event.inputs.output_path }}"
+
+          # Cleanup private key material immediately
+          rm -f /tmp/policy-signer-key.pem
+
+      - name: Verify Signed Envelope Structure
+        run: |
+          if [ ! -s "${{ github.event.inputs.output_path }}" ]; then
+            echo "❌ Policy signing failed or generated empty output file."
+            exit 1
+          fi
+          echo "✅ Policy successfully signed:"
+          jq '.payloadType' "${{ github.event.inputs.output_path }}"
+
+      - name: Create Pull Request with Updated Policy
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 #8.1.1
+        with:
+          commit-message: "security(policy): update signed in-toto policy layout"
+          title: "security: Update Signed In-Toto Policy (`policy.signed.json`)"
+          body: |
+            Automated pull request triggered by `@${{ github.actor }}` to update the signed in-toto/Witness policy layout.
+            
+            **Input File:** `${{ github.event.inputs.policy_path }}`
+            **Output File:** `${{ github.event.inputs.output_path }}`
+          branch: "automation/update-signed-policy"
+          delete-branch: true
+          labels: |
+            security
+            automated-pr
