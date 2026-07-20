@@ -105,6 +105,7 @@ jobs:
           witness verify-policy \
             --policy security/policy/in-toto.signed.json
 
+      #
       - name: Verify Witness Attestations Against Policy
         run: |
           witness verify \
