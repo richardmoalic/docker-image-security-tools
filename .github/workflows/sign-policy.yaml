@@ -53,7 +53,7 @@ jobs:
 
           witness sign \
             -f "${{ inputs.policy_path }}" \
-            --signer-file-key-path /tmp/policy-signer-key.pem \
+            -k /tmp/policy-signer-key.pem \
             -o "${{ inputs.output_path }}"
 
           # Cleanup private key material
@@ -66,7 +66,7 @@ jobs:
             exit 1
           fi
           echo "✅ Policy successfully signed:"
-          jq '.payloadType' "${{ github.event.inputs.output_path }}"
+          jq -e '.payloadType and .payload and .signatures' "${{ github.event.inputs.output_path }}"
 
       - name: Create Pull Request with Updated Policy
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 #8.1.1
