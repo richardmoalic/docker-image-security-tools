@@ -88,13 +88,13 @@ jobs:
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- bash -c 'echo "Verified target: ${{ env.TARGET_IMAGE }}" > "$ARTIFACTS_DIR/verified-target.txt"'
+            -- bash -c "echo 'Verified target: ${{ env.TARGET_IMAGE }}' > '$ARTIFACTS_DIR/verified-target.txt'"
 
           echo "attestation_path=$ATTESTATION_FILE" >> "$GITHUB_OUTPUT"
 
       - name: Upload Verify Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: artifacts
+          name: verify-artifacts
           path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5

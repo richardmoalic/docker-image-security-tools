@@ -100,11 +100,11 @@ jobs:
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- bash -c 'echo "${{ steps.build.outputs.digest }}" > "$ARTIFACTS_DIR/image-digest.txt"'
+            -- bash -c "echo '${{ steps.build.outputs.digest }}' > '$ARTIFACTS_DIR/image-digest.txt'"
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: artifacts
+          name: build-artifacts
           path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5
