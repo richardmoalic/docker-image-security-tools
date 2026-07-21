@@ -85,13 +85,13 @@ jobs:
           docker run --rm \
             -v "$TRIVY_CACHE_DIR:/root/.cache/trivy" \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            aquasecurity/trivy:0.72.0 \
+            aquasec/trivy:0.72.0 \
             sbom /artifacts/sbom.cdx.json --format json --output /artifacts/trivy.json
 
           docker run --rm \
             -v "$TRIVY_CACHE_DIR:/root/.cache/trivy" \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            aquasecurity/trivy:0.72.0 \
+            aquasec/trivy:0.72.0 \
             sbom /artifacts/sbom.cdx.json --format sarif --output /artifacts/trivy.sarif
 
       - name: Run OSV-Scanner
