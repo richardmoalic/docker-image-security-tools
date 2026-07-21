@@ -78,3 +78,21 @@ USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/trivy"]
 
 
+Run witness verify \
+  witness verify \
+    --policy security/policy/in-toto.signed.json
+    --attestation "$BUILD_ARTIFACTS_DIR/witness-build.dsse.json" \
+    --attestation "$SECURITY_ARTIFACTS_DIR/witness-security-scan.dsse.json" \
+    --attestation "$ATTEST_ARTIFACTS_DIR/witness-attest.dsse.json" \
+    --attestation "$ARTIFACTS_DIR/witness-verify.dsse.json"
+  shell: /usr/bin/bash -e {0}
+  env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ricardo/docker-image-security-tools
+    BUILD_ARTIFACTS_DIR: /home/runner/work/docker-image-security-tools/docker-image-security-tools/build-artifacts
+    SECURITY_ARTIFACTS_DIR: /home/runner/work/docker-image-security-tools/docker-image-security-tools/security-artifacts
+    ATTEST_ARTIFACTS_DIR: /home/runner/work/docker-image-security-tools/docker-image-security-tools/attest-artifacts
+    ARTIFACTS_DIR: /home/runner/work/docker-image-security-tools/docker-image-security-tools/verify-artifacts
+    TARGET_IMAGE: ghcr.io/ricardo/docker-image-security-tools@sha256:44add9b633cffb89b069a679b3543be1589917cd9fe3100e8d5c66e212d09bb7
+level=error msg="at least one of the flags in the group [artifactfile subjects] is required"
+Error: Process completed with exit code 1.

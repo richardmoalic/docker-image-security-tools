@@ -103,7 +103,7 @@ jobs:
       - name: Verify Witness Attestations Against Policy
         run: |
           witness verify \
-            --policy security/policy/in-toto.signed.json
+            --policy security/policy/in-toto.signed.json \
             --attestation "$BUILD_ARTIFACTS_DIR/witness-build.dsse.json" \
             --attestation "$SECURITY_ARTIFACTS_DIR/witness-security-scan.dsse.json" \
             --attestation "$ATTEST_ARTIFACTS_DIR/witness-attest.dsse.json" \

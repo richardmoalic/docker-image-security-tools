@@ -7,9 +7,6 @@
         {
           "type": "https://witness.dev/attestation/v0.1"
         }
-      ],
-      "artifactrules": [
-        "CREATE build-artifacts/"
       ]
     },
     "security-scan": {
@@ -18,10 +15,6 @@
         {
           "type": "https://witness.dev/attestation/v0.1"
         }
-      ],
-      "artifactrules": [
-        "MATCH build-artifacts/*",
-        "CREATE security-artifacts/"
       ]
     },
     "attest": {
@@ -30,10 +23,6 @@
         {
           "type": "https://witness.dev/attestation/v0.1"
         }
-      ],
-      "artifactrules": [
-        " MATCH security-artifacts/*",
-        "CREATE attest-artifacts/"
       ]
     },
     "verify": {
@@ -42,10 +31,6 @@
         {
           "type": "https://witness.dev/attestation/v0.1"
         }
-      ],
-      "artifactrules": [
-        "MATCH attest-artifacts/*",
-        "CREATE verify-artifacts/"
       ]
     },
     "publish": {
@@ -54,10 +39,7 @@
         {
           "type": "https://witness.dev/attestation/v0.1"
         }
-      ],
-      "artifactrules": [
-        "MATCH verify-artifacts/*"
-    ]
+      ]
     }
   }
 }

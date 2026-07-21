@@ -39,7 +39,7 @@ jobs:
       - name: Show Witness CLI
         run: |
           witness version
-          witness sign --help
+          witness run --help
 
       - name: Sign Policy (Keyless via Sigstore)
         run: |
