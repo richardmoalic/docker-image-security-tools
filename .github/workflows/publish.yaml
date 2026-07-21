@@ -32,7 +32,7 @@ jobs:
     name: Final Promotion & Release
     runs-on: ubuntu-latest
     env:
-      TARGET_IMAGE: ${{env.REGISTRY}}/${{ env.IMAGE }}@${{ inputs.image_digest }}
+      TARGET_IMAGE: ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}
     outputs:
       target_image: ${{ env.TARGET_IMAGE }}
       attestation_path: ${{ steps.witness-publish.outputs.attestation_path }}
