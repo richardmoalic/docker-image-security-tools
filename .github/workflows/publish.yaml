@@ -44,6 +44,24 @@ jobs:
       - name: Fetch Remote Tags
         run: git fetch --tags --force
 
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: build-artifacts
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Download Security Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: security-artifacts
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Download Attest Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: attest-artifacts
+          path: ${{ env.ARTIFACTS_DIR }}
+
       - name: Download Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -136,7 +154,11 @@ jobs:
             ${{ env.ARTIFACTS_DIR }}/trivy-filtered.sarif
             ${{ env.ARTIFACTS_DIR }}/osv.json
             ${{ env.ARTIFACTS_DIR }}/vex.json
+            ${{ env.ARTIFACTS_DIR }}/witness-build.dsse.json
             ${{ env.ARTIFACTS_DIR }}/witness-security-scan.dsse.json
+            ${{ env.ARTIFACTS_DIR }}/witness-attest.dsse.json
+            ${{ env.ARTIFACTS_DIR }}/witness-verify.dsse.json
+            ${{ env.ARTIFACTS_DIR }}/witness-publish.dsse.json
 
       - name: Upload Publish Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
