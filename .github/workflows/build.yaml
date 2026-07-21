@@ -13,7 +13,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository }}
-  ARTIFACTS_DIR: ${{ github.workspace }}/build-artifacts
+  ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
 
 jobs:
   build:
@@ -94,6 +94,7 @@ jobs:
           sudo mv witness /usr/local/bin/
 
       - name: Generate Build Step Attestation (Witness)
+        id: witness-attestation
         run: |
           witness run \
             --step build \
@@ -102,11 +103,11 @@ jobs:
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- true
+            -- bash -c 'echo "${{ steps.build.outputs.digest }}" > "$ARTIFACTS_DIR/image-digest.txt" && ls -la "$ARTIFACTS_DIR"'
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
-          name: build-artifacts
+          name: artifacts
           path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5

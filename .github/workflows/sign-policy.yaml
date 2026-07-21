@@ -62,6 +62,9 @@ jobs:
             --signer-fulcio-token "$ACTIONS_ID_TOKEN" \
             -o "${{ inputs.output_path }}"
 
+            printf "%s" "policy folder content"
+            printf "%s" "ls -la $(dirname "${{ inputs.output_path }}")"
+
       - name: Verify Signed Envelope Structure
         run: |
           set -euo pipefail

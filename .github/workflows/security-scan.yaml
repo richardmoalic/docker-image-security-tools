@@ -10,10 +10,18 @@ on:
         required: true
         type: string
 
+    purl:
+      description: "The product PURL evaluated for VEX policy filtering"
+      value: ${{ jobs.build-and-scan.outputs.purl }}
+    attestation_path:
+      description: "The local path to the generated Witness DSSE attestation"
+      value: ${{ jobs.build-and-scan.outputs.attestation_path }}
+
+
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository }}
-  ARTIFACTS_DIR: ${{ github.workspace }}/security-artifacts
+  ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
   CONTAINER_ARTIFACTS_DIR: /host-artifacts
   TRIVY_CACHE_DIR: /tmp/.cache/trivy
   GRYPE_CACHE_DIR: /tmp/.cache/grype
@@ -23,6 +31,9 @@ jobs:
   build-and-scan:
     name: Build, Scan & Attest
     runs-on: ubuntu-latest
+    outputs:
+      purl: ${{ steps.product.outputs.purl }}
+      attestation_path: ${{ steps.witness-attestation.outputs.attestation_path }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  #v7.0.0
@@ -261,15 +272,19 @@ jobs:
 
       # Generate Process Attestation (Witness)
       - name: Generate Security Scan Step Attestation (Witness)
+        id: witness-attestation
         run: |
+          ATTESTATION_FILE="$ARTIFACTS_DIR/witness-security-scan.dsse.json"
           witness run \
             --step security-scan \
-            --outfile "$ARTIFACTS_DIR/witness-security-scan.dsse.json" \
+            --outfile "$ATTESTATION_FILE" \
             --signer-fulcio-url https://fulcio.sigstore.dev \
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- true
+            -- bash -c 'echo "${{ inputs.image_digest }}" > "$ARTIFACTS_DIR/image-digest.txt" && sha256sum "$ARTIFACTS_DIR"/*'
+
+          echo "attestation_path=$ATTESTATION_FILE" >> "$GITHUB_OUTPUT"
 
       - name: Generate Checksums
         run: |
@@ -303,6 +318,6 @@ jobs:
       - name: Upload Security Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
-          name: security-artifacts
+          name: artifacts
           path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5

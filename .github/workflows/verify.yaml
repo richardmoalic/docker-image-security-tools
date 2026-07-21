@@ -7,20 +7,29 @@ on:
         required: true
         type: string
 
+    verified:
+      description: "Confirmation that signature, attestation, and Witness policy checks passed"
+      value: "true"
+    attestation_path:
+      description: "Path to the Witness DSSE attestation generated for the verification step"
+      value: ${{ jobs.verify.outputs.attestation_path }}
+    
+
+
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  BUILD_ARTIFACTS_DIR: ${{ github.workspace }}/build-artifacts
-  SECURITY_ARTIFACTS_DIR: ${{ github.workspace }}/security-artifacts
-  ATTEST_ARTIFACTS_DIR: ${{ github.workspace }}/attest-artifacts
-  ARTIFACTS_DIR: ${{ github.workspace }}/verify-artifacts
+  IMAGE: ${{ github.repository }}
+  ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
 
 jobs:
   verify:
     name: Cryptographic & Vulnerability Verification
     runs-on: ubuntu-latest
+    outputs:
+      verified: "true"
+      attestation_path: ${{ steps.witness-verify.outputs.attestation_path }}
     env:
-      TARGET_IMAGE: ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}
+      TARGET_IMAGE: ${{env.REGISTRY}}/${{ github.repository }}@${{ inputs.image_digest }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -30,23 +39,11 @@ jobs:
       - name: Prepare Workspace Directory
         run: mkdir -p "$ARTIFACTS_DIR"
       
-      - name: Download Build Artifacts
+      - name: Download Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
         with:
-          name: build-artifacts
-          path: ${{ env.BUILD_ARTIFACTS_DIR }}
-
-      - name: Download Security Artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
-        with:
-          name: security-artifacts
-          path: ${{ env.SECURITY_ARTIFACTS_DIR }}
-
-      - name: Download Attest Artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
-        with:
-          name: attest-artifacts
-          path: ${{ env.ATTEST_ARTIFACTS_DIR }}
+          name: artifacts
+          path: ${{ env.ARTIFACTS_DIR }}
 
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #v4.4.0
@@ -57,7 +54,7 @@ jobs:
 
       - name: Verify checksums
         run: |
-          cd "$SECURITY_ARTIFACTS_DIR"
+          cd "$ARTIFACTS_DIR"
           sha256sum -c checksums.txt
 
       - name: Install Cosign
@@ -90,7 +87,10 @@ jobs:
           sudo mv witness /usr/local/bin/
 
       - name: Generate Verify Step Attestation (Witness)
+        id: witness-verify
         run: |
+          ATTESTATION_FILE="$ARTIFACTS_DIR/witness-verify.dsse.json"
+
           witness run \
             --step verify \
             --outfile "$ARTIFACTS_DIR/witness-verify.dsse.json" \
@@ -98,20 +98,25 @@ jobs:
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- true
+            -- bash -c 'echo "Verified target: ${{ env.TARGET_IMAGE }}" > "$ARTIFACTS_DIR/verified-target.txt" && sha256sum "$ARTIFACTS_DIR"/*'
+
+          echo "attestation_path=$ATTESTATION_FILE" >> "$GITHUB_OUTPUT"
 
       - name: Verify Witness Attestations Against Policy
         run: |
+          ATTESTATION_ARGS=()
+          for f in "$ARTIFACTS_DIR"/witness-*.dsse.json; do
+            [ -f "$f" ] && ATTESTATION_ARGS+=("--attestation" "$f")
+          done
+
           witness verify \
             --policy security/policy/in-toto.signed.json \
-            --attestation "$BUILD_ARTIFACTS_DIR/witness-build.dsse.json" \
-            --attestation "$SECURITY_ARTIFACTS_DIR/witness-security-scan.dsse.json" \
-            --attestation "$ATTEST_ARTIFACTS_DIR/witness-attest.dsse.json" \
-            --attestation "$ARTIFACTS_DIR/witness-verify.dsse.json"
+            --subject "${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}" \
+            "${ATTESTATION_ARGS[@]}"
 
       - name: Upload Verify Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
-          name: verify-artifacts
+          name: artifacts
           path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5

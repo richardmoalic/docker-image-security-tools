@@ -10,18 +10,31 @@ on:
         required: true
         type: string
 
+    release_tag:
+      description: "The Git and container tag published for this release"
+      value: ${{ inputs.version }}
+    target_image:
+      description: "The full OCI image reference with digest that was promoted"
+      value: ${{ jobs.publish.outputs.target_image }}
+    attestation_path:
+      description: "Path to the final Witness publish DSSE attestation"
+      value: ${{ jobs.publish.outputs.attestation_path }}
+
+
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository }}
-  SECURITY_ARTIFACTS_DIR: ${{ github.workspace }}/security-artifacts
-  ARTIFACTS_DIR: ${{ github.workspace }}/publish-artifacts
+  ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
 
 jobs:
   publish:
     name: Final Promotion & Release
     runs-on: ubuntu-latest
+    outputs:
+      target_image: ${{ env.TARGET_IMAGE }}
+      attestation_path: ${{ steps.witness-publish.outputs.attestation_path }}
     env:
-      TARGET_IMAGE: ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}
+      TARGET_IMAGE: ${{env.REGISTRY}}/${{ github.repository }}@${{ inputs.image_digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  #v7.0.0
@@ -34,11 +47,11 @@ jobs:
       - name: Fetch Remote Tags
         run: git fetch --tags --force
 
-      - name: Download Security Artifacts
+      - name: Download Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #8.0.1
         with:
-          name: security-artifacts
-          path: ${{ env.SECURITY_ARTIFACTS_DIR }}
+          name: artifacts
+          path: ${{ env.ARTIFACTS_DIR }}
 
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #4.4.0
@@ -86,24 +99,6 @@ jobs:
             git push origin "${{ inputs.version }}"
           fi
 
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 #3.0.2
-        with:
-          tag_name: ${{ inputs.version }}
-          files: |
-            manifest.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/checksums.txt
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/checksums.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/checksums.txt.sigstore
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/sbom.spdx.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/sbom.cdx.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/grype-filtered.sarif
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/grype.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/trivy.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/trivy-filtered.sarif
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/osv.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/vex.json
-            ${{ env.SECURITY_ARTIFACTS_DIR }}/witness-security-scan.dsse.json
 
       - name: Install Witness
         env:
@@ -118,30 +113,55 @@ jobs:
           sudo mv witness /usr/local/bin/
 
       - name: Generate Publish Step Attestation (Witness)
+        id: witness-publish
         run: |
+          ATTESTATION_FILE="$ARTIFACTS_DIR/witness-publish.dsse.json"
+
           witness run \
             --step publish \
-            --outfile "$ARTIFACTS_DIR/witness-publish.dsse.json" \
+            --outfile "$ATTESTATION_FILE" \
             --signer-fulcio-url https://fulcio.sigstore.dev \
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- true
+            -- bash -c 'cp manifest.json "$ARTIFACTS_DIR/manifest.json" && sha256sum "$ARTIFACTS_DIR"/*'
 
-      - name: Verify Policy
-        run: |
-          witness verify-policy \
-            --policy security/policy/in-toto.signed.json
+          echo "attestation_path=$ATTESTATION_FILE" >> "$GITHUB_OUTPUT"
 
       - name: Verify Witness Attestations Against Policy
         run: |
+          ATTESTATION_ARGS=()
+          for f in "$ARTIFACTS_DIR"/witness-*.dsse.json; do
+            [ -f "$f" ] && ATTESTATION_ARGS+=("--attestation" "$f")
+          done
+
           witness verify \
             --policy security/policy/in-toto.signed.json \
-            --attestation "$ARTIFACTS_DIR/witness-publish.dsse.json"
+            --subject "${{ env.TARGET_IMAGE }}" \
+            "${ATTESTATION_ARGS[@]}"
+      
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 #3.0.2
+        with:
+          tag_name: ${{ inputs.version }}
+          files: |
+            manifest.json
+            ${{ env.ARTIFACTS_DIR }}/checksums.txt
+            ${{ env.ARTIFACTS_DIR }}/checksums.json
+            ${{ env.ARTIFACTS_DIR }}/checksums.txt.sigstore
+            ${{ env.ARTIFACTS_DIR }}/sbom.spdx.json
+            ${{ env.ARTIFACTS_DIR }}/sbom.cdx.json
+            ${{ env.ARTIFACTS_DIR }}/grype-filtered.sarif
+            ${{ env.ARTIFACTS_DIR }}/grype.json
+            ${{ env.ARTIFACTS_DIR }}/trivy.json
+            ${{ env.ARTIFACTS_DIR }}/trivy-filtered.sarif
+            ${{ env.ARTIFACTS_DIR }}/osv.json
+            ${{ env.ARTIFACTS_DIR }}/vex.json
+            ${{ env.ARTIFACTS_DIR }}/witness-security-scan.dsse.json
 
       - name: Upload Publish Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
-          name: publish-artifacts
+          name: artifacts
           path: ${{ env.ARTIFACTS_DIR }}/
           retention-days: 5
