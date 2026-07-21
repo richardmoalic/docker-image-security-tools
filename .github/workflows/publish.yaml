@@ -31,11 +31,11 @@ jobs:
   publish:
     name: Final Promotion & Release
     runs-on: ubuntu-latest
+    env:
+      TARGET_IMAGE: ${{env.REGISTRY}}/${{ env.IMAGE }}@${{ inputs.image_digest }}
     outputs:
       target_image: ${{ env.TARGET_IMAGE }}
       attestation_path: ${{ steps.witness-publish.outputs.attestation_path }}
-    env:
-      TARGET_IMAGE: ${{env.REGISTRY}}/${{ github.repository }}@${{ inputs.image_digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  #v7.0.0

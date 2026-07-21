@@ -28,11 +28,11 @@ jobs:
   attest:
     name: Sign & Attest Metadata
     runs-on: ubuntu-latest
+    env:
+      TARGET_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE }}@${{ inputs.image_digest }}
     outputs:
       target_image: ${{ env.TARGET_IMAGE }}
       attestation_path: ${{ steps.witness-attest.outputs.attestation_path }}
-    env:
-      TARGET_IMAGE: ${{ env.REGISTRY }}/${{ github.repository }}@${{ inputs.image_digest }}
     steps:
 
       - name: Checkout Repository

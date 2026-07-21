@@ -15,8 +15,6 @@ on:
         description: "Path to the Witness DSSE attestation generated for the verification step"
         value: ${{ jobs.verify.outputs.attestation_path }}
     
-
-
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository }}
@@ -26,11 +24,11 @@ jobs:
   verify:
     name: Cryptographic & Vulnerability Verification
     runs-on: ubuntu-latest
+    env:
+      TARGET_IMAGE: ${{env.REGISTRY}}/${{ env.IMAGE}}@${{ inputs.image_digest }}
     outputs:
       verified: "true"
       attestation_path: ${{ steps.witness-verify.outputs.attestation_path }}
-    env:
-      TARGET_IMAGE: ${{env.REGISTRY}}/${{ github.repository }}@${{ inputs.image_digest }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
