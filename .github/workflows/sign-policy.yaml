@@ -57,12 +57,12 @@ jobs:
 
       - name: Verify Signed Envelope Structure
         run: |
-          if [ ! -s "${{ github.event.inputs.output_path }}" ]; then
+          if [ ! -s "${{ inputs.output_path }}" ]; then
             echo "❌ Policy signing failed or generated empty output file."
             exit 1
           fi
           echo "✅ Policy successfully signed:"
-          jq -e '.payloadType and .payload and .signatures' "${{ github.event.inputs.output_path }}"
+          jq -e '.payloadType and .payload and .signatures' "${{ inputs.output_path }}"
 
       - name: Create Pull Request with Updated Policy
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 #8.1.1
@@ -72,8 +72,8 @@ jobs:
           body: |
             Automated pull request triggered by `@${{ github.actor }}` to update the signed in-toto/Witness policy layout.
             
-            **Input File:** `${{ github.event.inputs.policy_path }}`
-            **Output File:** `${{ github.event.inputs.output_path }}`
+            **Input File:** `${{ inputs.policy_path }}`
+            **Output File:** `${{ inputs.output_path }}`
           branch: "automation/update-signed-policy"
           delete-branch: true
           labels: |
