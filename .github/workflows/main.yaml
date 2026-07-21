@@ -26,6 +26,7 @@ jobs:
       id-token: write
       contents: read
     with:
+      image_uri: ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}
       image_digest: ${{ needs.build.outputs.digest }}
       version: ${{ needs.build.outputs.version }}
 
@@ -39,6 +40,7 @@ jobs:
       id-token: write
       attestations: write
     with:
+      image_uri: ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}
       image_digest: ${{ needs.build.outputs.digest }}
       version: ${{ needs.build.outputs.version }}
 
@@ -47,9 +49,12 @@ jobs:
     needs: [build, attest]
     uses: ./.github/workflows/verify.yaml
     permissions:
+      contents: read
       packages: read
       id-token: write
+      attestations: read
     with:
+      image_uri: ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}
       image_digest: ${{ needs.build.outputs.digest }}
 
   publish:
@@ -61,5 +66,6 @@ jobs:
       packages: write
       id-token: write
     with:
+      image_uri: ghcr.io/${{ github.repository }}@${{ needs.build.outputs.digest }}
       image_digest: ${{ needs.build.outputs.digest }}
       version: ${{ needs.build.outputs.version }}

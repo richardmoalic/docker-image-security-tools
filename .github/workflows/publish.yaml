@@ -21,7 +21,6 @@ on:
         description: "Path to the final Witness publish DSSE attestation"
         value: ${{ jobs.publish.outputs.attestation_path }}
 
-
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository }}
@@ -38,43 +37,39 @@ jobs:
       attestation_path: ${{ steps.witness-publish.outputs.attestation_path }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  #v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
-
-      - name: Prepare Workspace Directory
-        run: mkdir -p "$ARTIFACTS_DIR"
 
       - name: Fetch Remote Tags
         run: git fetch --tags --force
 
       - name: Download Artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #8.0.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: artifacts
           path: ${{ env.ARTIFACTS_DIR }}
 
       - name: Log in to Registry
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 #4.4.0
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Crane to Promote Tags Without Rebuilding
+      - name: Install Crane
         run: |
           curl -sL https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz | tar -xzf - crane
           sudo mv crane /usr/local/bin/
 
-      # Promote the secure, verified image to production tags
-      - name: Tag OCI Manifest in Registry
+      - name: Tag OCI Manifest in Registry via Crane
         run: |
           crane tag "$TARGET_IMAGE" "${{ inputs.version }}"
           crane tag "$TARGET_IMAGE" "latest"
 
       - name: Generate Tool Manifest
         run: |
-          cat <<EOF > manifest.json
+          cat <<EOF > "$ARTIFACTS_DIR/manifest.json"
           {
             "version": "${{ inputs.version }}",
             "built": "$(date -u +'%Y-%m-%d')",
@@ -91,7 +86,7 @@ jobs:
           }
           EOF
 
-      - name: Create and Push Git Production Tag
+      - name: Create and Push Git Tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -100,15 +95,11 @@ jobs:
             git push origin "${{ inputs.version }}"
           fi
 
-
       - name: Install Witness
         env:
           WITNESS_VERSION: v0.12.0
         run: |
-          curl -fsSL \
-            -o witness.tar.gz \
-            "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
-
+          curl -fsSL -o witness.tar.gz "https://github.com/in-toto/witness/releases/download/${WITNESS_VERSION}/witness_${WITNESS_VERSION#v}_linux_amd64.tar.gz"
           tar -xzf witness.tar.gz
           chmod +x witness
           sudo mv witness /usr/local/bin/
@@ -117,7 +108,6 @@ jobs:
         id: witness-publish
         run: |
           ATTESTATION_FILE="$ARTIFACTS_DIR/witness-publish.dsse.json"
-
           witness run \
             --step publish \
             --outfile "$ATTESTATION_FILE" \
@@ -125,28 +115,16 @@ jobs:
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- bash -c 'cp manifest.json "$ARTIFACTS_DIR/manifest.json" && sha256sum "$ARTIFACTS_DIR"/*'
+            -- bash -c 'sha256sum "$ARTIFACTS_DIR"/*'
 
           echo "attestation_path=$ATTESTATION_FILE" >> "$GITHUB_OUTPUT"
 
-      - name: Verify Witness Attestations Against Policy
-        run: |
-          ATTESTATION_ARGS=()
-          for f in "$ARTIFACTS_DIR"/witness-*.dsse.json; do
-            [ -f "$f" ] && ATTESTATION_ARGS+=("--attestation" "$f")
-          done
-
-          witness verify \
-            --policy security/policy/in-toto.signed.json \
-            --subject "${{ env.TARGET_IMAGE }}" \
-            "${ATTESTATION_ARGS[@]}"
-      
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 #3.0.2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ inputs.version }}
           files: |
-            manifest.json
+            ${{ env.ARTIFACTS_DIR }}/manifest.json
             ${{ env.ARTIFACTS_DIR }}/checksums.txt
             ${{ env.ARTIFACTS_DIR }}/checksums.json
             ${{ env.ARTIFACTS_DIR }}/checksums.txt.sigstore
@@ -161,7 +139,7 @@ jobs:
             ${{ env.ARTIFACTS_DIR }}/witness-security-scan.dsse.json
 
       - name: Upload Publish Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: artifacts
           path: ${{ env.ARTIFACTS_DIR }}/
