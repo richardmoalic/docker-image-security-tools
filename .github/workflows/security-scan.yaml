@@ -9,13 +9,13 @@ on:
       version:
         required: true
         type: string
-
-    purl:
-      description: "The product PURL evaluated for VEX policy filtering"
-      value: ${{ jobs.build-and-scan.outputs.purl }}
-    attestation_path:
-      description: "The local path to the generated Witness DSSE attestation"
-      value: ${{ jobs.build-and-scan.outputs.attestation_path }}
+    outputs:
+      purl:
+        description: "The product PURL evaluated for VEX policy filtering"
+        value: ${{ jobs.build-and-scan.outputs.purl }}
+      attestation_path:
+        description: "The local path to the generated Witness DSSE attestation"
+        value: ${{ jobs.build-and-scan.outputs.attestation_path }}
 
 
 env:
