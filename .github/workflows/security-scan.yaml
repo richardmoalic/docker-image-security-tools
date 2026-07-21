@@ -71,13 +71,13 @@ jobs:
           docker run --rm \
             -v "$GRYPE_CACHE_DIR:/root/.cache/grype" \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            anchore/grype:v0.115.0 \
+            ghcr.io/anchore/grype:v0.115.0 \
             sbom:/artifacts/sbom.spdx.json -o json > "$ARTIFACTS_DIR/grype.json"
 
           docker run --rm \
             -v "$GRYPE_CACHE_DIR:/root/.cache/grype" \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            anchore/grype:v0.115.0 \
+            ghcr.io/anchore/grype:v0.115.0 \
             sbom:/artifacts/sbom.spdx.json -o sarif > "$ARTIFACTS_DIR/grype.sarif"
 
       - name: Run Trivy Scan
@@ -85,13 +85,13 @@ jobs:
           docker run --rm \
             -v "$TRIVY_CACHE_DIR:/root/.cache/trivy" \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            aquasec/trivy:0.72.0 \
+            aquasecurity/trivy:0.72.0 \
             sbom /artifacts/sbom.cdx.json --format json --output /artifacts/trivy.json
 
           docker run --rm \
             -v "$TRIVY_CACHE_DIR:/root/.cache/trivy" \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            aquasec/trivy:0.72.0 \
+            aquasecurity/trivy:0.72.0 \
             sbom /artifacts/sbom.cdx.json --format sarif --output /artifacts/trivy.sarif
 
       - name: Run OSV-Scanner
@@ -131,12 +131,12 @@ jobs:
         run: |
           docker run --rm \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            chainguard/vexctl:0.4.1 \
+            ghcr.io/openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f \
             filter /artifacts/trivy.sarif /artifacts/vex.json > "$ARTIFACTS_DIR/trivy-filtered.sarif"
 
           docker run --rm \
             -v "$ARTIFACTS_DIR:/artifacts" \
-            chainguard/vexctl:0.4.1 \
+            ghcr.io/openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f \
             filter /artifacts/grype.sarif /artifacts/vex.json > "$ARTIFACTS_DIR/grype-filtered.sarif"
 
       - name: Verify Filtered Security Gates
