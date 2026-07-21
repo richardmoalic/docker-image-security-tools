@@ -7,12 +7,13 @@ on:
         required: true
         type: string
 
-    verified:
-      description: "Confirmation that signature, attestation, and Witness policy checks passed"
-      value: "true"
-    attestation_path:
-      description: "Path to the Witness DSSE attestation generated for the verification step"
-      value: ${{ jobs.verify.outputs.attestation_path }}
+    outputs:
+      verified:
+        description: "Confirmation that signature, attestation, and Witness policy checks passed"
+        value: "true"
+      attestation_path:
+        description: "Path to the Witness DSSE attestation generated for the verification step"
+        value: ${{ jobs.verify.outputs.attestation_path }}
     
 
 

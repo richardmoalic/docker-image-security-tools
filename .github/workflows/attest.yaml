@@ -10,12 +10,13 @@ on:
         required: true
         type: string
 
-    target_image:
-      description: "The full OCI image reference with digest that was signed and attested"
-      value: ${{ jobs.attest.outputs.target_image }}
-    attestation_path:
-      description: "Path to the generated Witness attestation DSSE envelope for the attest step"
-      value: ${{ jobs.attest.outputs.attestation_path }}
+    outputs:
+      target_image:
+        description: "The full OCI image reference with digest that was signed and attested"
+        value: ${{ jobs.attest.outputs.target_image }}
+      attestation_path:
+        description: "Path to the generated Witness attestation DSSE envelope for the attest step"
+        value: ${{ jobs.attest.outputs.attestation_path }}
 
 
 env:
