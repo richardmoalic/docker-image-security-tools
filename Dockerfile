@@ -57,14 +57,15 @@ RUN syft dir:. -o spdx-json=/artifacts/sbom.spdx.json
 RUN syft dir:. -o cyclonedx-json=/artifacts/sbom.cdx.json
 
 
+USER 65532:65532
+
+ENTRYPOINT ["/usr/local/bin/trivy"]
+CMD ["--help"]
+
 # ==============================================================================
 # Stage 3 - Clean Artifacts Export
 # ==============================================================================
 FROM scratch AS artifacts
 COPY --from=runtime /artifacts /
 
-# Secure non-root user execution boundary
-USER 65532:65532
-
-ENTRYPOINT ["/usr/local/bin/trivy"]
 
