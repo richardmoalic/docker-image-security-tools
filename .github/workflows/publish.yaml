@@ -1,25 +1,9 @@
 name: Production Release & Tag Execution
 
 on:
-  workflow_call:
-    inputs:
-      image_digest:
-        required: true
-        type: string
-      version:
-        required: true
-        type: string
-
-    outputs:
-      release_tag:
-        description: "The Git and container tag published for this release"
-        value: ${{ inputs.version }}
-      target_image:
-        description: "The full OCI image reference with digest that was promoted"
-        value: ${{ jobs.publish.outputs.target_image }}
-      attestation_path:
-        description: "Path to the final Witness publish DSSE attestation"
-        value: ${{ jobs.publish.outputs.attestation_path }}
+  release:
+    types: 
+      - published
 
 env:
   REGISTRY: ghcr.io
@@ -30,19 +14,18 @@ jobs:
   publish:
     name: Final Promotion & Release
     runs-on: ubuntu-latest
-    env:
-      TARGET_IMAGE: ghcr.io/${{ github.repository }}@${{ inputs.image_digest }}
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
     outputs:
-      target_image: ${{ env.TARGET_IMAGE }}
+      target_image: ${{ steps.resolve-digest.outputs.target_image }}
       attestation_path: ${{ steps.witness-publish.outputs.attestation_path }}
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
-
-      - name: Fetch Remote Tags
-        run: git fetch --tags --force
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -62,11 +45,12 @@ jobs:
           name: attest-artifacts
           path: ${{ env.ARTIFACTS_DIR }}
 
-      - name: Download Artifacts
+      - name: Download Verify Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: verify-artifacts
           path: ${{ env.ARTIFACTS_DIR }}
+
 
       - name: Log in to Registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
@@ -75,21 +59,41 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Resolve Release Version & SHA Digest
+        id: resolve-digest
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          
+          git fetch --tags
+
+          COMMIT_SHA=$(git rev-list -n 1 "${{ github.event.release.tag_name }}")
+          SHORT_SHA=$(git rev-parse --short=7 "$COMMIT_SHA")
+          
+          CANDIDATE_TAG="sha-${SHORT_SHA}"
+          TARGET_IMAGE="${REGISTRY}/${IMAGE}:${CANDIDATE_TAG}"
+          
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "target_image=${TARGET_IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "TARGET_IMAGE=${TARGET_IMAGE}" >> "$GITHUB_ENV"
+
       - name: Install Crane
         run: |
           curl -sL https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz | tar -xzf - crane
           sudo mv crane /usr/local/bin/
 
-      - name: Tag OCI Manifest in Registry via Crane
+      - name: Tag OCI Manifest in Registry via Crane (Promote)
         run: |
-          crane tag "$TARGET_IMAGE" "${{ inputs.version }}"
+          crane tag "$TARGET_IMAGE" "${{ steps.resolve-digest.outputs.version }}"
           crane tag "$TARGET_IMAGE" "latest"
+
+      - name: Prepare Workspace Directory
+        run: mkdir -p "$ARTIFACTS_DIR"
 
       - name: Generate Tool Manifest
         run: |
           cat <<EOF > "$ARTIFACTS_DIR/manifest.json"
           {
-            "version": "${{ inputs.version }}",
+            "version": "${{ steps.resolve-digest.outputs.version }}",
             "built": "$(date -u +'%Y-%m-%d')",
             "tools": {
               "cosign": "3.0.5",
@@ -97,21 +101,12 @@ jobs:
               "syft": "1.46.0",
               "grype": "0.115.0",
               "osv-scanner": "2.4.0",
-              "vexctl": "0.4.1",
+              "vexctl": "c613023a69ce990a54c25c2f5e69d5d78285927f",
               "witness": "0.12.0",
               "slsa-verifier": "2.4.1"
             }
           }
           EOF
-
-      - name: Create and Push Git Tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if ! git rev-parse "${{ inputs.version }}" >/dev/null 2>&1; then
-            git tag "${{ inputs.version }}"
-            git push origin "${{ inputs.version }}"
-          fi
 
       - name: Install Witness
         env:
@@ -133,36 +128,15 @@ jobs:
             --signer-fulcio-oidc-client-id sigstore \
             --signer-fulcio-oidc-issuer https://oauth2.sigstore.dev/auth \
             --timestamp-servers https://freetsa.org/tsr \
-            -- bash -c "sha256sum '$ARTIFACTS_DIR'/*"
+            -- bash -c "echo 'Promoted ${{ env.TARGET_IMAGE }} to tag ${{ steps.resolve-digest.outputs.version }}'"
 
           echo "attestation_path=$ATTESTATION_FILE" >> "$GITHUB_OUTPUT"
 
-      - name: Publish GitHub Release
+      - name: Attach Manifest & Attestation to GitHub Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        if: github.event_name == 'release'
         with:
-          tag_name: ${{ inputs.version }}
+          tag_name: ${{ steps.resolve-digest.outputs.version }}
           files: |
             ${{ env.ARTIFACTS_DIR }}/manifest.json
-            ${{ env.ARTIFACTS_DIR }}/checksums.txt
-            ${{ env.ARTIFACTS_DIR }}/checksums.json
-            ${{ env.ARTIFACTS_DIR }}/checksums.txt.sigstore
-            ${{ env.ARTIFACTS_DIR }}/sbom.spdx.json
-            ${{ env.ARTIFACTS_DIR }}/sbom.cdx.json
-            ${{ env.ARTIFACTS_DIR }}/grype-filtered.sarif
-            ${{ env.ARTIFACTS_DIR }}/grype.json
-            ${{ env.ARTIFACTS_DIR }}/trivy.json
-            ${{ env.ARTIFACTS_DIR }}/trivy-filtered.sarif
-            ${{ env.ARTIFACTS_DIR }}/osv.json
-            ${{ env.ARTIFACTS_DIR }}/vex.json
-            ${{ env.ARTIFACTS_DIR }}/witness-build.dsse.json
-            ${{ env.ARTIFACTS_DIR }}/witness-security-scan.dsse.json
-            ${{ env.ARTIFACTS_DIR }}/witness-attest.dsse.json
-            ${{ env.ARTIFACTS_DIR }}/witness-verify.dsse.json
             ${{ env.ARTIFACTS_DIR }}/witness-publish.dsse.json
-
-      - name: Upload Publish Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: publish-artifacts
-          path: ${{ env.ARTIFACTS_DIR }}/
-          retention-days: 5

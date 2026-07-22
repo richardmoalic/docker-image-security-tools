@@ -3,21 +3,13 @@
 # ==============================================================================
 
 FROM ghcr.io/sigstore/cosign/cosign:v3.0.5 AS cosign_src
-
 FROM aquasec/trivy:0.72.0 AS trivy_src
-
 FROM ghcr.io/anchore/syft:v1.46.0 AS syft_src
-
 FROM ghcr.io/anchore/grype:v0.115.0 AS grype_src
-
 FROM ghcr.io/google/osv-scanner:v2.4.0 AS osv_src
-
 FROM ghcr.io/openvex/vexctl:c613023a69ce990a54c25c2f5e69d5d78285927f AS vexctl_src
-
 FROM ghcr.io/in-toto/witness:0.12.0 AS witness_src
-
 FROM alpine:3.23.5 AS bootstrap
-COPY --from=cosign_src /ko-app/cosign /usr/local/bin/cosign
 
 RUN apk add --no-cache curl tar ca-certificates
 
@@ -41,11 +33,10 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     rm slsa.sha256
 
 # ==============================================================================
-# Stage 3 - Runtime
+# Stage 2 - Runtime
 # ==============================================================================
 FROM alpine:3.23.5 AS runtime
 RUN mkdir -p /artifacts /workspace
-
 
 
 # Copy statically-linked compiled binaries into path
@@ -67,7 +58,7 @@ RUN syft dir:. -o cyclonedx-json=/artifacts/sbom.cdx.json
 
 
 # ==============================================================================
-# Stage 4 - Clean Artifacts Export
+# Stage 3 - Clean Artifacts Export
 # ==============================================================================
 FROM scratch AS artifacts
 COPY --from=runtime /artifacts /
