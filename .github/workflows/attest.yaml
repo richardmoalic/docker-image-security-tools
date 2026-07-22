@@ -6,9 +6,6 @@ on:
       image_digest:
         required: true
         type: string
-      version:
-        required: true
-        type: string
 
     outputs:
       target_image:

@@ -6,9 +6,6 @@ on:
       digest:
         description: "The compiled OCI index digest"
         value: ${{ jobs.build.outputs.digest }}
-      version:
-        description: "Calculated semantic version"
-        value: ${{ jobs.build.outputs.version }}
 
 env:
   REGISTRY: ghcr.io
@@ -21,23 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       digest: ${{ steps.build.outputs.digest }}
-      version: ${{ steps.steps-version.outputs.version }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
-
-      - name: Install svu
-        run: |
-          echo 'deb [trusted=yes] https://apt.fury.io/caarlos0/ /' | sudo tee /etc/apt/sources.list.d/caarlos0.list
-          sudo apt-get update && sudo apt-get install svu -y
-
-      - name: Determine Next Version
-        id: steps-version
-        run: |
-          NEXT_VERSION=$(svu next --tag.prefix="" --always)
-          echo "version=${NEXT_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Login to GHCR
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0

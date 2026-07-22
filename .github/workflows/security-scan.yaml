@@ -6,9 +6,6 @@ on:
       image_digest:
         required: true
         type: string
-      version:
-        required: true
-        type: string
 
     outputs:
       purl:
@@ -179,9 +176,20 @@ jobs:
           cd "$ARTIFACTS_DIR"
           shopt -s nullglob
           sha256sum *.{json,sarif} > checksums.txt
-          sha256sum *.{json,sarif} | jq -R -s --arg ver "${{ inputs.version }}" '
-            split("\n") | map(select(length > 0) | split("  ")) | map({(.[1]): .[0]}) | add
-            | { version: $ver, artifacts: . }
+          sha256sum *.{json,sarif} | jq -R -s \
+          --arg version "${{ github.event.release.tag_name || github.sha }}" \
+          --arg digest "${{ inputs.image_digest }}" \
+          --arg commit "${{ github.sha }}" '
+          split("\n")
+          | map(select(length > 0) | split("  "))
+          | map({(.[1]): .[0]})
+          | add
+          | {
+              version: $version,
+              digest: $digest,
+              commit: $commit,
+              artifacts: .
+            }
           ' > checksums.json
           shopt -u nullglob
 

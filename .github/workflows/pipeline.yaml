@@ -1,9 +1,9 @@
-name: Production Pipeline Orchestrator
+name: Pipeline Orchestrator
 
 on:
   push:
     branches:
-      - main
+      - develop
 
 env:
   REGISTRY: ghcr.io
@@ -27,7 +27,6 @@ jobs:
       contents: read
     with:
       image_digest: ${{ needs.build.outputs.digest }}
-      version: ${{ needs.build.outputs.version }}
 
   attest:
     name: 3. Attestation Stage
@@ -40,7 +39,6 @@ jobs:
       attestations: write
     with:
       image_digest: ${{ needs.build.outputs.digest }}
-      version: ${{ needs.build.outputs.version }}
 
   verify:
     name: 4. Verification Stage
@@ -53,15 +51,3 @@ jobs:
       attestations: read
     with:
       image_digest: ${{ needs.build.outputs.digest }}
-
-  publish:
-    name: 5. Publish Stage
-    needs: [build, verify]
-    uses: ./.github/workflows/publish.yaml
-    permissions:
-      contents: write
-      packages: write
-      id-token: write
-    with:
-      image_digest: ${{ needs.build.outputs.digest }}
-      version: ${{ needs.build.outputs.version }}
