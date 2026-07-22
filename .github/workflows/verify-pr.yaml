@@ -35,20 +35,21 @@ jobs:
           set -euxo pipefail
 
           echo "=== Verifying Hardened Toolchain ==="
-
-          docker run --rm sec-tools:test sh -c '
-           echo "PATH=$PATH"
-           command -v cosign
-           command -v syft
-           command -v grype
-           command -v witness
-           command -v slsa-verifier
-           command -v trivy
-           '
+          docker run --rm --entrypoint /bin/sh sec-tools:test -c '
+            set -e
+            echo "PATH=$PATH"
+            command -v cosign
+            command -v syft
+            command -v grype
+            command -v witness
+            command -v slsa-verifier
+            command -v trivy
+          '   
           
+          echo "=== Verifying Hardened Toolchain Binaries ==="
           docker run --rm --entrypoint cosign sec-tools:test version
           docker run --rm --entrypoint syft sec-tools:test version
           docker run --rm --entrypoint grype sec-tools:test version
           docker run --rm --entrypoint witness sec-tools:test version
           docker run --rm --entrypoint slsa-verifier sec-tools:test version
-          docker run --rm --entrypoint trivy sec-tools:test --version
+          docker run --rm sec-tools:test --version
