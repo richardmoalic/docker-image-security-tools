@@ -31,7 +31,19 @@ jobs:
 
       - name: Validate Binary Execution
         run: |
+          set -euxo pipefail
+
           echo "=== Verifying Hardened Toolchain ==="
+
+          docker run --rm sec-tools:test sh -c '
+           echo "PATH=$PATH"
+           command -v cosign
+           command -v syft
+           command -v grype
+           command -v witness
+           command -v slsa-verifier
+           command -v trivy
+          
           docker run --rm --entrypoint cosign sec-tools:test version
           docker run --rm --entrypoint syft sec-tools:test version
           docker run --rm --entrypoint grype sec-tools:test version
