@@ -70,14 +70,31 @@ jobs:
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
             "$TARGET_IMAGE"
 
-      - name: Verify Cosign Attestations
+      - name: Verify Cosign Attestations (in-toto Statements & Provenance)
         run: |
           cosign verify-attestation \
+            --type https://in-toto.io/Statement/v0.1 \
             --certificate-identity-regexp "https://github.com/.*" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
             "$TARGET_IMAGE"
 
-      - name: Verify GitHub Attestations
+      - name: Verify Cosign Attestations (VEX)
+        run: |
+          cosign verify-attestation \
+            --type https://openvex.dev/ns \
+            --certificate-identity-regexp "https://github.com/.*" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "$TARGET_IMAGE"
+
+      - name: Verify Cosign Attestations (Vulnerability Reports)
+        run: |
+          cosign verify-attestation \
+            --type https://cosign.sigstore.dev/attestation/vuln/v1 \
+            --certificate-identity-regexp "https://github.com/.*" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "$TARGET_IMAGE"
+
+      - name: Verify GitHub Attestations 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
