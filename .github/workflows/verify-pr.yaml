@@ -32,9 +32,9 @@ jobs:
       - name: Validate Binary Execution
         run: |
           echo "=== Verifying Hardened Toolchain ==="
-          docker run --rm sec-tools:test --version
           docker run --rm --entrypoint cosign sec-tools:test version
-          docker run --rm --entrypoint syft sec-tools:test --version
+          docker run --rm --entrypoint syft sec-tools:test version
           docker run --rm --entrypoint grype sec-tools:test version
           docker run --rm --entrypoint witness sec-tools:test version
           docker run --rm --entrypoint slsa-verifier sec-tools:test version
+          docker run --rm --entrypoint trivy sec-tools:test --version
