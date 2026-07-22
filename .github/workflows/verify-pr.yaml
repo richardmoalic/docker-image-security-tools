@@ -43,6 +43,7 @@ jobs:
            command -v witness
            command -v slsa-verifier
            command -v trivy
+           '
           
           docker run --rm --entrypoint cosign sec-tools:test version
           docker run --rm --entrypoint syft sec-tools:test version
